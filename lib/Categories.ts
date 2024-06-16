@@ -1,0 +1,17 @@
+import mongoose from "mongoose"
+
+const categorySchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: [true, 'Name must be required']
+    },
+    parent: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Category'
+    },
+    properties: {
+        type: Object,
+    }
+})
+
+export default mongoose.models?.Category || mongoose.model('Category', categorySchema)
