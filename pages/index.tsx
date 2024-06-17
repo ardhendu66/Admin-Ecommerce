@@ -20,10 +20,10 @@ export default function Index() {
     return (
       <div className="flex items-center justify-center bg-bgGray w-screen min-h-screen">
         <div 
-          className="flex flex-col justify-evenly bg-sky-600 lg:w-[40%] md:w-2/3 max-md:w-full h-60 p-5 rounded-sm shadow-2xl"
+          className="flex flex-col justify-evenly bg-sky-600 lg:w-[46%] md:w-2/3 max-md:w-full h-72 p-5 rounded-md shadow-2xl"
         >
           <button
-            className="flex justify-center items-center bg-gray-200 text-black py-3 px-4 rounded-md text-2xl font-medium font-Nunito"
+            className="flex justify-center items-center bg-gray-200 text-black p-4 rounded-lg text-2xl font-medium font-Nunito"
             onClick={() => signIn('google')}
           >
             <FcGoogle className="w-8 h-8 -ml-4 mr-4" />
@@ -31,7 +31,7 @@ export default function Index() {
           </button>
           <div className="text-center text-2xl font-mono underline font-semibold">or</div>
           <Link href={'/auth/login'}
-            className="flex justify-center items-center bg-gray-200 text-black py-3 px-4 rounded-md text-center text-2xl font-medium font-Nunito"
+            className="flex justify-center items-center bg-gray-200 text-black p-4 rounded-lg text-center text-2xl font-medium font-Nunito"
           >
             <FcUnlock className="w-8 h-8 -ml-4 mr-4" />
             Credential-Login
