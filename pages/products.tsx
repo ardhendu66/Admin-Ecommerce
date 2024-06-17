@@ -10,24 +10,21 @@ export default function Products() {
     const [isLoading, setIsLoading] = useState<boolean>(false)
 
     useEffect(() => {
-        getProducts()
-        .then(r => r)
-    }, [])   
-    
-    const getProducts = async () => {
-        try {
-            setIsLoading(true)
-            const res = await axios.get<Product[]>('/api/products/get-products')
-            const data = res?.data
-            setProducts(data)
-            setTimeout(() => {
-                setIsLoading(false)
-            }, 1500)
-        }
-        catch(err: any) {
-            console.error(err);
-        }
-    }
+        (async () => {
+            try {
+                setIsLoading(true)
+                const res = await axios.get<Product[]>('/api/products/get-products')
+                const data = res?.data
+                setProducts(data)
+                setTimeout(() => {
+                    setIsLoading(false)
+                }, 1500)
+            }
+            catch(err: any) {
+                console.error(err);
+            }
+        })();
+    }, [])
 
     return (
         <Layout>
@@ -40,7 +37,9 @@ export default function Products() {
                         <td className="w-2/3 bg-sky-600 text-white p-2 text-2xl text-center font-bold"> 
                             Product Name
                         </td>
-                        <td className="w-1/3 bg-sky-600 text-white p-2  text-2xl text-center font-bold">Action</td>
+                        <td className="w-1/3 bg-sky-600 text-white p-2  text-2xl text-center font-bold">
+                            Action
+                        </td>
                     </tr>
                 </thead>
                 <tbody className="w-full bg-gray-200">
