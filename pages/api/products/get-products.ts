@@ -2,19 +2,18 @@ import { NextApiRequest, NextApiResponse } from "next"
 import Product from "@/lib/Product"
 import { ConnectionWithMongoose } from "@/lib/mongoose"
 
-ConnectionWithMongoose()
-
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+    await ConnectionWithMongoose();
     try {
         if(req.method === 'GET') {
-            const productList = await Product.find({})
+            const productList = await Product.find({}, null, { sort: { createdAt: -1 }})
             if(productList) {
-                res.status(200).json(productList)
+                return res.status(200).json(productList)
             }
-            return res.status(404).json({message: "Product-list not found"})
+            return res.status(204).json({message: "Products not found"})
         }
     }
     catch(err: any) {
-        return res.status(500).json({message: "internal server error :("})
+        return res.status(200).json({message: "internal server error :("})
     }
 } 
