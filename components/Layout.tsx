@@ -68,11 +68,11 @@ export default function Layout({children}: ChildProps) {
         )
       }
       else if(!session.user.verifiedAsAdmin) {
-        useEffect(() => {
+        // useEffect(() => {
           setTimeout(() => {
             signOut({ callbackUrl: "/" });
           }, 12000)
-        }, [])
+        // }, [])
 
         const requestForAsAdmin = async () => {
           
