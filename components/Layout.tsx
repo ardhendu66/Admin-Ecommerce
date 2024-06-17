@@ -68,20 +68,30 @@ export default function Layout({children}: ChildProps) {
         )
       }
       else if(!session.user.verifiedAsAdmin) {
+        useEffect(() => {
+          setTimeout(() => {
+            signOut({ callbackUrl: "/" });
+          }, 12000)
+        }, [])
+
+        const requestForAsAdmin = async () => {
+          
+        }
+
         return (
           <div className="flex items-center justify-center bg-bgGray w-screen min-h-screen">
-            <div className="flex flex-col justify-between bg-sky-600 lg:w-[40%] md:w-[60%] max-md:w-full h-60 p-6 rounded-sm shadow-2xl">
+            <div className="flex flex-col justify-between bg-sky-400 md:w-[60%] max-md:w-full h-60 p-6 rounded-sm shadow-2xl">
               <div className="bg-gray-200 flex flex-col items-center text-blue-900 text-lg font-semibold py-3 px-5 rounded-md">
                 <div className="">
-                  You should be an Admin to access this protected page. Contact Website Owner to be verified as an Admin.
+                  You should be an Admin to access this protected page. Click <b>Be an Admin</b> button for sending request to the website owner to be verified as an Admin within 12 seconds.
                 </div>
               </div>
-              <div className="flex justify-center">
+              <div className="flex justify-around">
                 <button
-                  className="flex justify-center items-center w-1/3 bg-gray-200 text-black py-3 px-4 rounded-md text-2xl font-medium font-Nunito shadow-md"
-                  onClick={() => signOut({callbackUrl: '/'})}
+                  className="flex justify-center items-center bg-gray-600 text-white py-3 px-4 rounded-md text-2xl font-semibold font-Nunito shadow-md text-wrap"
+                  onClick={() => requestForAsAdmin()}
                 >
-                  Log out
+                  Be an Admin
                 </button>
               </div>
             </div>

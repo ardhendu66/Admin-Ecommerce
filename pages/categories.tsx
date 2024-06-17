@@ -5,6 +5,7 @@ import Layout from "@/components/Layout"
 import { withSwal } from "react-sweetalert2"
 import { CategoryType } from "@/config/config"
 import { MdDelete } from "react-icons/md";
+import { BounceLoader } from "react-spinners"
 
 function CategoriesPage({swal}: any) {
     const [categoryList, setCategoryList] = useState<CategoryType[]>([])
@@ -14,16 +15,25 @@ function CategoriesPage({swal}: any) {
     const [parentCategory, setParentCategory] = useState('')
     const [editedCategoryName, setEditedCategoryName] = useState<string | null>(null)
     const [isEditingDone, setIsEditingDone] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
 
     useEffect(() => {
         fetchCategories()
     }, [])
 
     const fetchCategories = () => {
+        setIsLoading(true);
         axios.get<CategoryType[]>('/api/categories/get')
         .then((res: any) => {           
             setCategoryList(res.data)
-            // console.log(res.data) 
+        })
+        .catch(err => {
+            console.error(err);            
+        })
+        .finally(() => {
+            setTimeout(() => {
+                setIsLoading(false);
+            }, 1500)
         })
     }
 
@@ -58,15 +68,17 @@ function CategoriesPage({swal}: any) {
                 }
             }
 
+            if(categoryName === "") {
+                toast.info("Category-Name must have to be filled", { position: "top-center"})
+                return;
+            }
             const axiosBody = {
                 name: categoryName, parent: parentCategory, properties
             }
             const res = await axios.post('/api/categories/create', axiosBody)
-            res.status === 201 
-                ?
-            toast(res.data.message)
-                :
-            toast.error(res.data.message)
+            if(res.status === 201 || res.status === 202) {
+                toast.success(res.data.message, { position: "top-center" })
+            }
         }
         setCategoryName('')
         setParentCategory('')
@@ -150,8 +162,8 @@ function CategoriesPage({swal}: any) {
 
     return (
         <Layout>
-            <div className="flex justify-between">
-                <h1 className="font-semibold">Categories</h1>
+            <div className="flex justify-between mb-6">
+                <h1 className="text-4xl font-bold underline">Categories</h1>
                 <button className={
                     `${!isEditingDone && "hidden"} bg-gray-500 text-white px-3 rounded-md`}
                     onClick={() => {
@@ -166,7 +178,9 @@ function CategoriesPage({swal}: any) {
                     Go back →
                 </button>
             </div>
-            <label>{editedCategoryName ? `Edit ${editedCategoryName}` : 'New Category Name'}</label>
+            <label className="text-2xl font-semibold">
+                {editedCategoryName ? `Edit ${editedCategoryName}` : 'New Category Name' }
+            </label>
             <form className="flex flex-col mt-2" onSubmit={e => saveCategory(e)}>
                 <div className="flex justify-start gap-4">
                     <input 
@@ -190,8 +204,8 @@ function CategoriesPage({swal}: any) {
                     </select>
                 </div>
                 <div className="mt-1 mb-3">
-                    <label>Properties</label>
-                    <button type="button" className="bg-slate-600 px-4 py-2 ml-3 rounded-md"
+                    <label className="text-xl font-semibold">Properties</label>
+                    <button type="button" className="bg-slate-600 px-4 py-2 ml-3 rounded-md text-xl font-semibold"
                         onClick={e => addNewProperties(e)}
                     >
                         Add new property
@@ -225,21 +239,21 @@ function CategoriesPage({swal}: any) {
                     ))
                 }
                 </div>
-                <button type="submit" className={`bg-blue-900 px-3 py-3 rounded-md text-xl`}>
-                { isEditingDone ? "Update" : "Create"}
+                <button type="submit" className={`bg-blue-900 px-3 py-3 rounded-md text-2xl font-semibold`}>
+                { isEditingDone ? "Update" : "Create" }
                 </button>
             </form>
             
             <table className="w-full mt-4">
                 <thead className="w-full">
                     <tr className="w-full">
-                        <td className="w-1/3 bg-sky-200 p-2 font-medium text-lg">
+                        <td className="w-1/3 text-white text-center bg-sky-600 p-2 font-bold text-2xl">
                             Category Name
                         </td>
-                        <td className="w-1/3 bg-sky-200 p-2 font-medium text-lg">
+                        <td className="w-1/3 text-white text-center bg-sky-600 p-2 font-bold text-2xl">
                             Parent Category
                         </td>
-                        <td className="w-1/3 bg-sky-200 p-2"></td>
+                        <td className="w-1/3 bg-sky-600 p-2"></td>
                     </tr>
                 </thead>
                 <tbody className="w-full">
@@ -248,8 +262,8 @@ function CategoriesPage({swal}: any) {
                         ? 
                     (
                         <tr>
-                            <td className="p-2">{category.name}</td>
-                            <td className="p-2">{category?.parent?.name}</td>
+                            <td className="text-center p-2">{category.name}</td>
+                            <td className="text-center p-2">{category?.parent?.name}</td>
                             <td className="flex justify-around p-2 max-lg:justify-between max-md:flex-col max-lg:px-3 max-md:px-2 max-lg:gap-2 border-none">
                                 <button 
                                     type="button"
@@ -271,10 +285,39 @@ function CategoriesPage({swal}: any) {
                         </tr>
                     )
                         :
+                    isLoading
+                        ?
+                    <tr>
+                        <td className="p-2">
+                            <BounceLoader 
+                                color="#1b6ea5"
+                                size={60}
+                                speedMultiplier={2}
+                                loading={isLoading}
+                            />
+                        </td>
+                        <td className="p-2">
+                            <BounceLoader 
+                                color="#1b6ea5"
+                                size={60}
+                                speedMultiplier={2}
+                                loading={isLoading}
+                            />
+                        </td>
+                        <td className="p-2">
+                            <BounceLoader 
+                                color="#1b6ea5"
+                                size={60}
+                                speedMultiplier={2}
+                                loading={isLoading}
+                            />
+                        </td>
+                    </tr>
+                        :
                     categoryList.length > 0 && categoryList?.map((cat, index) => (
-                        <tr key={index}>
-                            <td className="p-2">{cat.name}</td>
-                            <td className="p-2">{cat?.parent?.name}</td>
+                        <tr key={index} className="text-lg font-semibold">
+                            <td className="text-center p-2">{cat.name}</td>
+                            <td className="text-center p-2">{cat?.parent?.name}</td>
                             <td className="flex justify-around p-2 max-lg:justify-between max-md:flex-col max-lg:px-3 max-md:px-2 max-lg:gap-2 border-none">
                                 <button 
                                     type="button"

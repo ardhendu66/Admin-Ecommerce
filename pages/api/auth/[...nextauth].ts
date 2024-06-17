@@ -1,9 +1,5 @@
 import NextAuth, { DefaultSession, Session, SessionStrategy } from 'next-auth'
-import GoogleProvider from 'next-auth/providers/google'
 import CredentialsProvider from 'next-auth/providers/credentials'
-import { Adapter } from 'next-auth/adapters'
-import { MongoDBAdapter } from '@auth/mongodb-adapter'
-import clientPromise from '@/lib/mongodb'
 import { ConnectionWithMongoose } from '@/lib/mongoose'
 import { envVariables } from '@/config/config'
 import UserModel from '@/lib/User'
@@ -12,10 +8,6 @@ import { JWT } from 'next-auth/jwt'
 
 export default NextAuth({
   providers: [
-    // GoogleProvider({
-    //   clientId: envVariables.googleAuthId,
-    //   clientSecret: envVariables.googleAuthSecret,
-    // }),
     CredentialsProvider({
       id: 'credentials',
       name: 'credentials',
@@ -28,7 +20,7 @@ export default NextAuth({
           return null;
         }
         // console.log("Credentials: ", credentials)
-        ConnectionWithMongoose();
+        await ConnectionWithMongoose();
         try {
           const user = await UserModel.findOne({email: credentials?.email})
           if(!user) {
@@ -43,17 +35,17 @@ export default NextAuth({
           );
           // console.log(isPasswordCorrect);          
           if(!isPasswordCorrect) {
-            throw new Error("Incorrect Password given!")
+            console.log("Incorrect Password given!")
+            return null;
           }
           return user;
         }
         catch(err: any) {
-          throw new Error(err)
+          console.log(err)
         }
       },
     }),
   ],
-  // adapter: <Adapter>MongoDBAdapter(clientPromise),
   session: {
     strategy: "jwt" as SessionStrategy,
     maxAge: 60 * 60 * 24 * 2,

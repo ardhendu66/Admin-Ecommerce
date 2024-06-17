@@ -3,7 +3,8 @@ import { useRouter } from "next/router"
 import Link from "next/link"
 import { FcGoogle } from "react-icons/fc"
 import { FcUnlock } from "react-icons/fc";
-import { useEffect } from "react"
+import { useEffect, CSSProperties } from "react"
+import { ClipLoader } from "react-spinners";
 
 export default function Index() {
   const {data: session, status} = useSession()
@@ -19,7 +20,7 @@ export default function Index() {
     return (
       <div className="flex items-center justify-center bg-bgGray w-screen min-h-screen">
         <div 
-          className="flex flex-col justify-evenly bg-sky-500 lg:w-[40%] md:w-2/3 max-md:w-full h-60 p-5 rounded-sm shadow-2xl"
+          className="flex flex-col justify-evenly bg-sky-600 lg:w-[40%] md:w-2/3 max-md:w-full h-60 p-5 rounded-sm shadow-2xl"
         >
           <button
             className="flex justify-center items-center bg-gray-200 text-black py-3 px-4 rounded-md text-2xl font-medium font-Nunito"
@@ -58,6 +59,18 @@ export default function Index() {
             </button>
           </div>
         </div>
+      </div>
+    )
+  }
+
+  if(session && session.user.verifiedAsAdmin) {
+    return (
+      <div className="flex items-center justify-center bg-bgGray w-screen min-h-screen">
+        <ClipLoader 
+          size={150}
+          color="#0369A1"
+          loading={true}
+        />
       </div>
     )
   }

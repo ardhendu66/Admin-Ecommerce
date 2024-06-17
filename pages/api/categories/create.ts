@@ -21,12 +21,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     ?
                 res.status(201).json({message: 'New Category created 😊'})
                     :
-                res.status(403).json({message: 'Category creation failed 😣'})
+                res.status(202).json({message: 'Category creation failed 😣'})
             )
         }
     }
     catch(err: any) {
         console.error(err.message)
-        return res.status(500).json({message: err.message})        
+        return res.status(200).json({message: err.message})        
     }
 }

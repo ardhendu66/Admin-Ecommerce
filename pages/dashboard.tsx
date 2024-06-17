@@ -1,12 +1,25 @@
 import Layout from "@/components/Layout"
-import { useSession, signIn } from "next-auth/react"
+import { useSession } from "next-auth/react"
 import Link from "next/link"
 import Image from "next/image"
-import { useEffect } from "react"
+import { ClipLoader } from "react-spinners"
 
 export default function Dashboard() {
     const {data: session, status} = useSession()
     const sourceOfImage: string = session?.user?.image!
+
+    if(status === "loading") {
+      return (
+        <div className="flex items-center justify-center bg-bgGray w-screen min-h-screen">
+          <ClipLoader 
+            size={150}
+            color="#0369A1"
+            loading={true}
+            // speedMultiplier={2} 
+          />
+        </div>
+      )
+    }
 
     return (
         <Layout>

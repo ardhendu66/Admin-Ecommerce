@@ -1,13 +1,11 @@
-"use client"
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import axios from "axios"
-import { ClipLoader } from "react-spinners"
+import { BounceLoader } from "react-spinners"
 import Layout from "@/components/Layout"
 import { Product } from "@/config/config"
-import { toast } from "react-toastify"
 
-function Products() {
+export default function Products() {
     const [products, setProducts] = useState<Product[]>([])
     const [isLoading, setIsLoading] = useState<boolean>(false)
 
@@ -26,7 +24,9 @@ function Products() {
             console.error(err);
         }
         finally {
-            setIsLoading(false)
+            setTimeout(() => {
+                setIsLoading(false)
+            }, 1500)
         }
     }
 
@@ -47,22 +47,26 @@ function Products() {
                 <tbody className="w-full bg-gray-200">
                 {
                     isLoading
-                    ?
+                        ?
                     <tr>
                         <td className="rounded-sm pl-3">
-                            <ClipLoader 
+                            <BounceLoader 
                                 color="#1b6ea5"
-                                size={30}
+                                size={60}
+                                speedMultiplier={2}
+                                loading={true}
                             />
                         </td>
-                        <td className="p-3 border-none">
-                            <ClipLoader 
+                        <td className="p-3">
+                            <BounceLoader 
                                 color="#1b6ea5"
-                                size={30}
+                                size={60}
+                                speedMultiplier={2}
+                                loading={true}
                             />
                         </td>
                     </tr>
-                    :
+                        :
                     products?.map((item, index) => (
                         <tr key={index} className="text-xl font-semibold">
                             <td className="rounded-sm pl-3">
@@ -90,5 +94,3 @@ function Products() {
         </Layout>
     )
 }
-
-export default Products;
