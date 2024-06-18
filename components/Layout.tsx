@@ -11,7 +11,7 @@ interface ReactNodeArray extends Array<ReactNode> {}
 type ChildProps = { children: ReactNode | ReactNodeArray | boolean | null | undefined }
 
 export default function Layout({children}: ChildProps) {
-  const [showSideBar, setShowSideBar] = useState(true)
+  const [showSideBar, setShowSideBar] = useState(false);
   const router = useRouter();
   const { data: session, status } = useSession();
 
@@ -34,7 +34,7 @@ export default function Layout({children}: ChildProps) {
       if(session.user.verifiedAsAdmin) {
         return (
           <div className="bg-bgGray flex min-h-screen max-md:flex-col">
-            <Sidebar showSideBar={showSideBar} setShowSideBar={setShowSideBar} />
+            <Sidebar showSideBar={showSideBar} />
             <div 
               className={`${!showSideBar && "bg-white w-full"} bg-bgGray text-black fixed cursor-pointer rounded-full`}
               onClick={() => setShowSideBar(!showSideBar)}

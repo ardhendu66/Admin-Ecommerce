@@ -1,6 +1,8 @@
+import { Dispatch, SetStateAction } from "react"
 import Link from "next/link"
 import { useRouter } from "next/router"
 import { signOut } from "next-auth/react"
+import { withSwal } from "react-sweetalert2"
 import { RiAdminFill } from "react-icons/ri"
 import { AiFillHome } from "react-icons/ai"
 import { FaCartArrowDown } from "react-icons/fa"
@@ -9,20 +11,46 @@ import { IoClipboard } from "react-icons/io5"
 import { IoSettings } from "react-icons/io5"
 import { ImUpload2 } from "react-icons/im"
 import { IoLogOut } from "react-icons/io5"
-import { Dispatch, SetStateAction } from "react"
+import { toast } from "react-toastify"
 
-type Props = {
-    showSideBar:boolean, 
-    setShowSideBar: Dispatch<SetStateAction<boolean>>
+interface Props {
+    showSideBar: boolean,
+    swal: any
 }
 
-export default function Sidebar({showSideBar, setShowSideBar}: Props) {
+function SidebarComponent({showSideBar, swal}: Props) {
     const inactiveLink = 'flex gap-1 pl-6 py-2 pr-2 -ml-4'
     const activeLink = `${inactiveLink} bg-sky-600 text-gray-100`
     const inActiveIcon = 'w-6 h-6 mb-1 mr-1'
     const activeIcon = `${inActiveIcon} text-white`
     const router = useRouter()
     const { pathname } = router
+
+    const confirmLogoutAction = () => {
+        swal.fire({
+            title: 'Are you sure ?',
+            text: `Do you want to Log-out ?`,
+            showCancelButton: true,
+            cancelButtonText: 'Cancel',
+            confirmButtonText: `Log-out 🔐`,
+            confirmButtonColor: "#0EA5E9",
+            reverseButtons: true,
+        })
+        .then((res: any) => {
+            if(res.isConfirmed) {
+                signOut({callbackUrl: '/'})
+                .then(res => {
+                    toast.success("Logged-out successfully", { position: "top-center" })
+                })
+            }
+            else {
+                swal.fire(`Seems like you avoid to Log-out 🙂`, '', 'info');
+            }
+        })
+        .catch((err: any) => {
+            swal.fire(err.message, '', 'error')
+        })
+    }
 
     return (
         <aside 
@@ -75,9 +103,7 @@ export default function Sidebar({showSideBar, setShowSideBar}: Props) {
                     Upload
                 </Link>
                 <button type="button" className={`text-gray-500 ${inactiveLink}`} 
-                    onClick={() => 
-                        signOut({callbackUrl: '/'})
-                    }
+                    onClick={confirmLogoutAction}
                 >
                     <IoLogOut className="w-6 h-6"/> Logout
                 </button>
@@ -85,3 +111,9 @@ export default function Sidebar({showSideBar, setShowSideBar}: Props) {
         </aside>
     );
 }
+
+const Sidebar = withSwal(({showSideBar, swal}: Props, ref: any) => (
+    <SidebarComponent swal={swal} showSideBar={showSideBar} />
+))
+
+export default Sidebar;
