@@ -16,7 +16,7 @@ export const sendEmail = async (token: string, email: string) => {
         to: email,
         subject: 'Verification using Token',
         text: 'Click this token to verify your account and access your protected account',
-        html: `<div>Click <span><a href="https://admin-ecommerce-panel.vercel.app/auth/verify-token?email=${email}&token=${token}" style="text-decoration: underline;">${token}</a></span> to verify your account and access your protected account</div>`,
+        html: `<div>Click <b style="text-decoration: underline;"><a href="${envVariables.domainName}/auth/verify-token?email=${email}&token=${token}" style="text-decoration: underline;">${token}</a></b> to verify your account and access your protected account</div>`,
     })
 
     return response as SMTPTransport.SentMessageInfo;

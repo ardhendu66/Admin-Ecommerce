@@ -10,8 +10,7 @@ interface EnvironmentVariables {
     productionEmail: string,
     productionPassSecret: string,
     mailSendToEmail: string,
-    privateDomain: string,
-    localDomain: string,
+    domainName: string,
 }
 
 export const envVariables: EnvironmentVariables = {
@@ -26,8 +25,7 @@ export const envVariables: EnvironmentVariables = {
     productionEmail: process.env.PRODUCTION_EMAIL! as string,
     productionPassSecret: process.env.PRODUCTION_EMAIL_PASSWORD! as string,
     mailSendToEmail: process.env.MAIL_SEND_TO_EMAIL! as string,
-    privateDomain: process.env.PRIVATE_DOMAIN! as string,
-    localDomain: process.env.PRIVATE_LOCAL_DOMAIN! as string,
+    domainName: process.env.DOMAIN_NAME! as string,
 }
 
 export interface Product {
