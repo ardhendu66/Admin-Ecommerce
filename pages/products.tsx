@@ -1,34 +1,74 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/router"
 import axios from "axios"
-import { BounceLoader } from "react-spinners"
+import { ClipLoader } from "react-spinners"
+import { withSwal } from "react-sweetalert2"
+import { toast } from "react-toastify"
 import Layout from "@/components/Layout"
 import { Product } from "@/config/config"
 
-export default function Products() {
+const ProductComponent = ({swal}: any) => {
     const [products, setProducts] = useState<Product[]>([])
     const [isLoading, setIsLoading] = useState<boolean>(false)
+    const router = useRouter();
+
+    const fetchProducts = async () => {
+        try {
+            setIsLoading(true)
+            const res = await axios.get<Product[]>('/api/products/get-products')
+            const data = res?.data
+            setProducts(data)
+            setTimeout(() => {
+                setIsLoading(false)
+            }, 1500)
+        }
+        catch(err: any) {
+            console.log(err);
+        }
+    }
+
+    const deleteSingleProduct = (product: Product) => {
+        swal.fire({
+            title: 'Are you sure ?',
+            text: `Do you want to delete ${product.name} ?`,
+            showCancelButton: true,
+            cancelButtonText: 'Cancel',
+            confirmButtonText: 'Yes, Delete',
+            confirmButtonColor: "#f51616",
+            reverseButtons: true,
+        })
+        .then((res: any) => {
+            if(res.isConfirmed) {
+                axios.delete(`/api/products/delete-product?id=${product._id}`)
+                .then(res => {
+                    swal.fire(`Deleted ${product.name}! 😒`, '', 'success')
+                })
+                .catch(err => toast.error(err.message, { position: "top-center" }))
+                .finally(() => {
+                    fetchProducts().then(() => {});
+                })
+            }
+            else {
+                swal.fire('Deletion failed! 🥲', '', 'info')
+            }
+        })
+        .catch((err: any) => {
+            swal.fire('Deletion failed! 🥲', '', 'error')
+            console.log(err.message)
+        })
+    }
 
     useEffect(() => {
-        (async () => {
-            try {
-                setIsLoading(true)
-                const res = await axios.get<Product[]>('/api/products/get-products')
-                const data = res?.data
-                setProducts(data)
-                setTimeout(() => {
-                    setIsLoading(false)
-                }, 1500)
-            }
-            catch(err: any) {
-                console.error(err);
-            }
-        })();
+        fetchProducts().then(() => {})
     }, [])
 
     return (
         <Layout>
-            <div className="w-full bg-blue-800 rounded-md text-white p-3 text-2xl tracking-wider font-medium text-center shadow-md hover:bg-blue-600">
+            <h1 className="text-5xl font-bold underline">Products</h1>
+            <div 
+                className="w-full bg-blue-800 rounded-md text-white p-3 text-2xl tracking-wider font-medium text-center shadow-md hover:bg-blue-600"
+            >
                 <Link href={'/products/create'}> Create New Product </Link>
             </div>
             <table className="w-full mt-6 shadow-xl">
@@ -47,16 +87,16 @@ export default function Products() {
                     isLoading
                         ?
                     <tr>
-                        <td className="rounded-sm pl-3">
-                            <BounceLoader 
+                        <td className="text-center p-3">
+                            <ClipLoader 
                                 color="#1b6ea5"
                                 size={60}
                                 speedMultiplier={2}
                                 loading={true}
                             />
                         </td>
-                        <td className="p-3">
-                            <BounceLoader 
+                        <td className="text-center p-3">
+                            <ClipLoader 
                                 color="#1b6ea5"
                                 size={60}
                                 speedMultiplier={2}
@@ -78,10 +118,12 @@ export default function Products() {
                                         Edit
                                     </Link>
                                 </button>
-                                <button type="button" className="w-1/3 max-lg:w-1/2 max-md:w-full bg-red-700 text-white text-lg px-1 py-2 rounded-md tracking-wide">
-                                    <Link href={`/products/delete/${item._id}`}>
-                                        Delete
-                                    </Link>
+                                <button 
+                                    type="button" 
+                                    className="w-1/3 max-lg:w-1/2 max-md:w-full bg-red-700 text-white text-lg px-1 py-2 rounded-md tracking-wide"
+                                    onClick={() => deleteSingleProduct(item)}
+                                >
+                                    Delete
                                 </button>
                             </td>
                         </tr>
@@ -92,3 +134,9 @@ export default function Products() {
         </Layout>
     )
 }
+
+const ProductPage = withSwal(({swal}: any, ref: any) => (
+    <ProductComponent swal={swal} />
+))
+
+export default ProductPage;

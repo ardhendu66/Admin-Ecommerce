@@ -38,7 +38,7 @@ export default function RegisterPage() {
             if(res.status === 201) {
                 setshowResponseMessage({message: res.data.message});
                 if(res.data.message === msg) {
-                    toast.success(`${msg} 😊`, {position: "top-center"});
+                    toast.success(`${msg} 😊`, { position: "top-center" });
                 }
             }
             else {
@@ -46,13 +46,14 @@ export default function RegisterPage() {
             }
         }
         catch(err: any) {
-            console.error("SignUp Error: ", err)            
+            console.log("SignUp Error: ", err)            
         }
     }
 
     return (
         <div className="bg-bgGray flex flex-col items-center justify-center w-[100vw] min-h-screen">
-            <div className={`w-1/2 mt-2 text-wrap ${showResponseMessage.message === "" && "hidden"} bg-slate-500 py-3 px-[2px] rounded-md text-white font-medium font-Nunito mb-3 text-center`}
+            <div 
+                className={`mt-2 text-wrap ${showResponseMessage.message === "" && "hidden"} bg-green-700 py-3 px-5 rounded-md text-white font-medium font-Nunito mb-3 text-center`}
             >
                 {showResponseMessage?.message}
             </div>

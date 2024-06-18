@@ -38,7 +38,7 @@ export default async function handler(request: NextApiRequest, res: NextApiRespo
             });
         }
         catch(err: any) {
-            return res.status(500).json({message: err.message})
+            return res.status(200).json({message: err.message})
         }
     }
 }

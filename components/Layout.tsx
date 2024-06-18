@@ -48,7 +48,7 @@ export default function Layout({children}: ChildProps) {
                 <div className="flex w-full bg-bgGray pb-1">
                   <GiHamburgerMenu className="w-10 h-10 mr-4" />
                   <div className="w-full flex justify-center">
-                    <Link href={'/'} className="flex gap-1 text-sky-700 font-medium">
+                    <Link href={'/dashboard'} className="flex gap-1 text-sky-700 font-medium">
                       <RiAdminFill className="w-10 h-10 text-sky-700"/>
                       <span className="text-3xl font-semibold mt-1 underline"> 
                         AdminDashboard
@@ -68,11 +68,9 @@ export default function Layout({children}: ChildProps) {
         )
       }
       else if(!session.user.verifiedAsAdmin) {
-        // useEffect(() => {
-          setTimeout(() => {
-            signOut({ callbackUrl: "/" });
-          }, 12000)
-        // }, [])
+        setTimeout(() => {
+          signOut({ callbackUrl: "/" });
+        }, 20000)
 
         const requestForAsAdmin = async () => {
           
@@ -83,7 +81,7 @@ export default function Layout({children}: ChildProps) {
             <div className="flex flex-col justify-between bg-sky-400 md:w-[60%] max-md:w-full h-60 p-6 rounded-sm shadow-2xl">
               <div className="bg-gray-200 flex flex-col items-center text-blue-900 text-lg font-semibold py-3 px-5 rounded-md">
                 <div className="">
-                  You should be an Admin to access this protected page. Click <b>Be an Admin</b> button for sending request to the website owner to be verified as an Admin within 12 seconds.
+                  You should be an Admin to access this protected page. Click <b>Be an Admin</b> button for sending request to the website owner to be verified as an Admin within <b>20 seconds</b>.
                 </div>
               </div>
               <div className="flex justify-around">

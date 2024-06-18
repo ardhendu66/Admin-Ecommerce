@@ -5,9 +5,9 @@ import Layout from "@/components/Layout"
 import { withSwal } from "react-sweetalert2"
 import { CategoryType } from "@/config/config"
 import { MdDelete } from "react-icons/md";
-import { BounceLoader } from "react-spinners"
+import { ClipLoader } from "react-spinners"
 
-function CategoriesPage({swal}: any) {
+const CategoriesPage = ({swal}: any) => {
     const [categoryList, setCategoryList] = useState<CategoryType[]>([])
     const [category, setCategory] = useState<CategoryType | null>(null)
     const [categoryName, setCategoryName] = useState('')
@@ -253,7 +253,9 @@ function CategoriesPage({swal}: any) {
                         <td className="w-1/3 text-white text-center bg-sky-600 p-2 font-bold text-2xl">
                             Parent Category
                         </td>
-                        <td className="w-1/3 bg-sky-600 p-2"></td>
+                        <td className="w-1/3 text-white text-center bg-sky-600 p-2 font-bold text-2xl">
+                            Action
+                        </td>
                     </tr>
                 </thead>
                 <tbody className="w-full">
@@ -288,24 +290,24 @@ function CategoriesPage({swal}: any) {
                     isLoading
                         ?
                     <tr>
-                        <td className="p-2">
-                            <BounceLoader 
+                        <td className="text-center p-2">
+                            <ClipLoader 
                                 color="#1b6ea5"
                                 size={60}
                                 speedMultiplier={2}
                                 loading={isLoading}
                             />
                         </td>
-                        <td className="p-2">
-                            <BounceLoader 
+                        <td className="text-center p-2">
+                            <ClipLoader 
                                 color="#1b6ea5"
                                 size={60}
                                 speedMultiplier={2}
                                 loading={isLoading}
                             />
                         </td>
-                        <td className="p-2">
-                            <BounceLoader 
+                        <td className="text-center p-2">
+                            <ClipLoader 
                                 color="#1b6ea5"
                                 size={60}
                                 speedMultiplier={2}
@@ -343,7 +345,7 @@ function CategoriesPage({swal}: any) {
     )
 }
 
-const Categories =  withSwal(({swal}: any, ref: any) => (
+const Categories = withSwal(({swal}: any, ref: any) => (
     <CategoriesPage swal={swal} />
 ))
 

@@ -41,7 +41,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     const response = await sendEmail(hashedVerifyCode, email);
                     if(response.accepted) {
                         return res.status(202).json({
-                            message: "An Email has been sent to this email id regarding on   verification"
+                            message: "Check your mail and do verify"
                         })
                     }
                     else if(response.rejected) {
