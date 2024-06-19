@@ -1,5 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import jwt from "jsonwebtoken";
 import UserModel from "@/lib/User";
+import { envVariables } from "@/config/config";
 
 export default async function handler(request: NextApiRequest, res: NextApiResponse) {
     if(request.method === "POST") {
@@ -23,19 +25,29 @@ export default async function handler(request: NextApiRequest, res: NextApiRespo
                 })
             }
             
-            const updatedUser = await UserModel.findByIdAndUpdate(user._id, {
-                emailVerified: true
-            });
-            if(updatedUser) {
+            const decodedToken: any = jwt.verify(token, envVariables.jwtSecretKey);
+            const tokenExpiryDate = new Date(decodedToken.expiryDate);
+            if(tokenExpiryDate > new Date()) {
+                const updatedUser = await UserModel.findByIdAndUpdate(user._id, {
+                    emailVerified: true
+                });
+                if(updatedUser) {
+                    return res.status(200).json({
+                        message: "Email-id has been verified",
+                        success: true,
+                    });
+                }
                 return res.status(200).json({
-                    message: "Email-id has been verified",
-                    success: true,
+                    message: "User not found",
+                    success: false,
                 });
             }
-            return res.status(200).json({
-                message: "Email-id verification failed",
+            
+            return res.status(202).json({
+                message: "Token has been expired. Do Sign-up again.",
                 success: false,
-            });
+                expires: true,
+            })
         }
         catch(err: any) {
             return res.status(200).json({message: err.message})

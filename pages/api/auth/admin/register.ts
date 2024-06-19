@@ -1,12 +1,13 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
 import { ConnectionWithMongoose } from "@/lib/mongoose";
 import UserModel from "@/lib/User";
 import { sendEmail } from "@/utils/mailer";
-
-ConnectionWithMongoose();
+import { envVariables } from "@/config/config";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+    await ConnectionWithMongoose();
     if(req.method === "POST") {
         try {
             const { name, username, email, password } = req.body;
@@ -23,7 +24,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }
 
             const user = await UserModel.findOne({email});
-            const verifyCode = `${Math.floor(Math.random()*100000 + 100000)}`
             if(user) {
                 if(user.emailVerified) {
                     return res.status(200).json({message: "User already exists with the email"})
@@ -31,17 +31,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 else {
                     const salt = await bcrypt.genSalt(10)
                     const hashedPassword = await bcrypt.hash(password, salt)
-                    const hashedVerifyCode = await bcrypt.hash(verifyCode, salt)
-                    const expiryDate = new Date(new Date().setHours(new Date().getHours() + 1))
+                    const expiryDate = new Date();
+                    expiryDate.setHours(
+                        expiryDate.getHours() + 3
+                    )
+                    const jwtToken = jwt.sign(
+                        { expiryDate, email },
+                        envVariables.jwtSecretKey,
+                        { expiresIn: envVariables.jwtExpiresIn }
+                    )
                     await UserModel.findByIdAndUpdate(user._id, {
                         password: hashedPassword, 
-                        verifyToken: hashedVerifyCode,
+                        verifyToken: jwtToken,
                         verifyTokenExpiry: expiryDate,
                     })
-                    const response = await sendEmail(hashedVerifyCode, email);
+                    const response = await sendEmail(jwtToken, email);
                     if(response.accepted) {
                         return res.status(202).json({
-                            message: "Check your mail and do verify"
+                            message: "Check your mail and do verify your account",
                         })
                     }
                     else if(response.rejected) {
@@ -54,18 +61,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
             const salt = await bcrypt.genSalt(10)
             const hashedPassword = await bcrypt.hash(password, salt)
-            const hashedVerifyCode = await bcrypt.hash(verifyCode, salt)
-            const expiryDate = new Date(new Date().setHours(new Date().getHours() + 1))
+            const expiryDate = new Date();
+            expiryDate.setHours(
+                expiryDate.getHours() + 3
+            )
+            const jwtToken = jwt.sign(
+                { expiryDate, email },
+                envVariables.jwtSecretKey,
+                { expiresIn: envVariables.jwtExpiresIn }
+            )
             const registeredUser = await UserModel.create({
                 name, username, email, 
                 password: hashedPassword, 
-                verifyToken: hashedVerifyCode, 
+                verifyToken: jwtToken, 
                 verifyTokenExpiry: expiryDate,
             })
-            const response = await sendEmail(hashedVerifyCode, email);
+            const response = await sendEmail(jwtToken, email);
             if(response.accepted) {
                 return res.status(202).json({
-                    message: "An Email has been sent to this email id regarding on   verification"
+                    message: "Check your mail and do verify your account",
                 })
             }
             else if(response.rejected) {
@@ -80,7 +94,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             })
         }
         catch(err: any) {
-            return res.status(500).json({errorMessage: err.message})
+            return res.status(200).json({errorMessage: err.message})
         }
     }
 }

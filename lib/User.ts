@@ -39,14 +39,13 @@ export const userSchema: mongoose.Schema<User> = new mongoose.Schema({
             if(value.includes('@')) {
                 return true;
             }
-            else {
-                throw new Error("Invalid Email id")
-            }
+            console.log("Invalid Email id")
+            return false;
         }
     },
     password: {
         type: String,
-        required: [true, "Name is required!"],
+        required: [true, "Password is required!"],
         trim: true,
     },
     image: {

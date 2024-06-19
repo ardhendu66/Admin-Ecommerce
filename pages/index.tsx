@@ -34,8 +34,12 @@ export default function Index() {
             className="flex justify-center items-center bg-gray-200 text-black p-4 rounded-lg text-center text-2xl font-medium font-Nunito"
           >
             <FcUnlock className="w-8 h-8 -ml-4 mr-4" />
-            Credential-Login
+            Email-Login
           </Link>
+          <div className="flex justify-end text-white text-lg mr-3 mt-3">
+            <span className="mr-2">Don't have an account?</span>
+            <Link href={'/auth/register'} className="underline font-semibold">Sign-up</Link>
+          </div>
         </div>
       </div>
     )

@@ -11,6 +11,8 @@ interface EnvironmentVariables {
     productionPassSecret: string,
     mailSendToEmail: string,
     domainName: string,
+    jwtSecretKey: string,
+    jwtExpiresIn: string,
 }
 
 export const envVariables: EnvironmentVariables = {
@@ -26,6 +28,8 @@ export const envVariables: EnvironmentVariables = {
     productionPassSecret: process.env.PRODUCTION_EMAIL_PASSWORD! as string,
     mailSendToEmail: process.env.MAIL_SEND_TO_EMAIL! as string,
     domainName: process.env.DOMAIN_NAME! as string,
+    jwtSecretKey: process.env.JWT_SECRET_KEY! as string,
+    jwtExpiresIn: process.env.JWT_EXPIRES_IN! as string,
 }
 
 export interface Product {
