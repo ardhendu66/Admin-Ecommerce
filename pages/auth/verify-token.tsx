@@ -28,6 +28,9 @@ export default function VerifyToken() {
                 toast.success(res.data.message, { position: "top-center" });
                 setRespMsg(res.data.message);
                 setStatusCode(true);
+                setTimeout(() => {
+                    router.push("/auth/login")
+                }, 1500)
             }
             else {
                 setRespMsg(res.data.message);

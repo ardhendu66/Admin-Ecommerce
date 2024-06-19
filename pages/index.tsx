@@ -20,7 +20,7 @@ export default function Index() {
     return (
       <div className="flex items-center justify-center bg-bgGray w-screen min-h-screen">
         <div 
-          className="floating flex flex-col justify-evenly bg-sky-600 lg:w-[46%] md:w-2/3 max-md:w-full h-72 p-5 rounded-md shadow-2xl"
+          className="floating flex flex-col justify-evenly bg-sky-600 lg:w-[46%] md:w-2/3 max-md:w-full h-72 px-14 pt-5 pb-2 rounded-md shadow-2xl max-md:-ml-4 max-md:-mr-4"
         >
           <button
             className="flex justify-center items-center bg-gray-200 text-black p-4 rounded-lg text-2xl font-medium font-Nunito"
@@ -36,7 +36,7 @@ export default function Index() {
             <FcUnlock className="w-8 h-8 -ml-4 mr-4" />
             Email-Login
           </Link>
-          <div className="flex justify-end text-white text-lg mr-3 mt-3">
+          <div className="flex justify-end text-white text-lg mr-3 mt-1 -mb-2">
             <span className="mr-2">Don't have an account?</span>
             <Link href={'/auth/register'} className="underline font-semibold">Sign-up</Link>
           </div>
