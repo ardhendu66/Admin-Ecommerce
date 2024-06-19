@@ -20,7 +20,7 @@ export default function Index() {
     return (
       <div className="flex items-center justify-center bg-bgGray w-screen min-h-screen">
         <div 
-          className="flex flex-col justify-evenly bg-sky-600 lg:w-[46%] md:w-2/3 max-md:w-full h-72 p-5 rounded-md shadow-2xl"
+          className="floating flex flex-col justify-evenly bg-sky-600 lg:w-[46%] md:w-2/3 max-md:w-full h-72 p-5 rounded-md shadow-2xl"
         >
           <button
             className="flex justify-center items-center bg-gray-200 text-black p-4 rounded-lg text-2xl font-medium font-Nunito"
