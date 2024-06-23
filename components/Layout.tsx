@@ -3,7 +3,7 @@ import { useSession, signOut } from "next-auth/react"
 import { useRouter } from "next/router"
 import Link from "next/link"
 import { GiHamburgerMenu } from "react-icons/gi"
-import { MdCancel } from "react-icons/md"
+import { RxCross1 } from "react-icons/rx"
 import { RiAdminFill } from "react-icons/ri"
 import Sidebar from "./Sidebar"
 
@@ -42,7 +42,7 @@ export default function Layout({children}: ChildProps) {
             {
               showSideBar 
                 ? 
-              <MdCancel className="w-10 h-10 rounded-full" />  
+              <RxCross1 className="w-10 h-10 rounded-full bg-transparent" />  
                 : 
               (
                 <div className="flex w-full bg-bgGray pb-1">

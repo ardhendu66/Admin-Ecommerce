@@ -48,8 +48,8 @@ export default NextAuth({
   ],
   session: {
     strategy: "jwt" as SessionStrategy,
-    maxAge: 60 * 60 * 24 * 2,
-    updateAge: 60 * 60 * 24,
+    maxAge: 60 * 60 * 10,
+    updateAge: 60 * 60 * 5,
   },
   callbacks: {
     async session({session, token}) {

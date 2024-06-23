@@ -53,20 +53,17 @@ export default function SignInPage() {
             toast.error("Wrong email or password 🤔", { position: "top-center" })
             console.error("signIn Error: ", err)            
         }
-        finally {
-            setIsSigningIn(false);
-        }
     }
 
     return (
-        <div className="bg-bgGray flex flex-col items-center justify-center w-[100vw] min-h-screen">
+        <div className="bg-sky-600 flex flex-col items-center justify-center w-[100vw] min-h-screen">
             <div 
                 className={`${!loginErrorMessage && "hidden"} bg-gray-500 text-white py-2 px-4 rounded-md`}
             >
                 {loginErrorMessage}
             </div>
             <form 
-                className="bg-white flex flex-col lg:w-[40%] md:w-2/3 max-md:w-full p-6 shadow-2xl rounded-md border-sky-400 border-t-4 mt-4"
+                className="floating bg-white flex flex-col lg:w-[40%] md:w-2/3 max-md:w-full p-6 shadow-2xl rounded-md border-sky-400 border-t-4 mt-4"
                 onSubmit={e => signInWithCredentials(e)}
             >
                 <h2 className="text-center -mt-2 mb-6 text-4xl font-semibold tracking-tight">
@@ -116,7 +113,10 @@ export default function SignInPage() {
                 </button>
                 <div className="flex justify-end mt-3 mb-1 w-[96%]">
                     <span className="mr-2">Don't have an account?</span>
-                    <Link href={'/auth/register'} className="underline">
+                    <Link 
+                        href={'/auth/register'} 
+                        className="underline hover:scale-110 hover:transition-all"
+                    >
                         Sign-up
                     </Link>
                 </div>

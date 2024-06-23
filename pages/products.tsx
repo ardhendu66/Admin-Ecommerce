@@ -19,12 +19,14 @@ const ProductComponent = ({swal}: any) => {
             const res = await axios.get<Product[]>('/api/products/get-products')
             const data = res?.data
             setProducts(data)
-            setTimeout(() => {
-                setIsLoading(false)
-            }, 1500)
         }
         catch(err: any) {
             console.log(err);
+        }
+        finally {
+            setTimeout(() => {
+                setIsLoading(false)
+            }, 1500)
         }
     }
 

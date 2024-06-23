@@ -9,6 +9,7 @@ interface Order extends Document {
     pinCode: string,
     streetAddress: string,
     paid: boolean,
+    image: string,
 }
 
 const orderSchema: Schema<Order> = new Schema({
@@ -35,6 +36,9 @@ const orderSchema: Schema<Order> = new Schema({
     },
     paid: {
         type: Boolean,
+    },
+    image: {
+        type: String,
     }
 }, {
     timestamps: true,
