@@ -1,4 +1,4 @@
-import { Product } from "./config";
+import { Product } from "@/config/ProductTypes";
 
 export const defaultProductAttributes: Product = {
     _id: '',
@@ -35,5 +35,7 @@ export const defaultProductAttributes: Product = {
         },
         rating: Number(),
         review: '',
-    }
+    },
+    createdAt: new Date(),
+    updatedAt: new Date(),
 }
