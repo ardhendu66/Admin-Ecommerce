@@ -32,60 +32,10 @@ export const envVariables: EnvironmentVariables = {
     jwtExpiresIn: process.env.JWT_EXPIRES_IN! as string,
 }
 
-export interface Product {
-    _id: string,
-    name: string,
-    images: string[],
-    description: string,
-    price: number,
-    amount: number,
-    __v: number,
-    category: CategoryType,
-    categoryProperties: Object,
-}
-
-export interface ProductType {
-    _id: string,
-    name: string,
-    brand: [{
-        _id: string,
-        brandName: string,
-        brandImages: string[],
-    }],
-    __v: number
-}
+export const loaderColor = "#0369A1";
 
 export interface UploadProductType {
     _id: string,
     brandName: string,
     brandImages: string[],
-}
-
-export interface Category {
-    _id: string,
-    name: string,
-    parent: string,
-    __v: number
-}
-
-export interface CategoryType {
-    _id: string,
-    name: string,
-    __v: number,
-    parent?: {
-        _id?: string,
-        name?: string,
-        __v?: number,
-    },
-    properties: Object,
-}
-
-export interface PropertyType {
-    catName: string,
-    properties: Object
-}
-
-export interface CatProperty {
-    catName: string,
-    properties: Object
 }

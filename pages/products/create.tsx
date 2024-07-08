@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation"
 import axios from "axios"
 import { toast } from 'react-toastify'
 import Layout from "@/components/Layout"
-import { CategoryType, CatProperty } from "@/config/config"
+import { CategoryType, CatProperty } from "@/config/CategoryTypes"
 
 export default function Create() {
     const router = useRouter()
@@ -11,7 +11,9 @@ export default function Create() {
     const [images, setImages] = useState<string>('')
     const [description, setDescription] = useState<string>('')
     const [price, setPrice] = useState<number>()
+    const [discount, setDiscount] = useState<number>()
     const [amount, setAmount] = useState<number>()
+    const [sellerName, setSellerName] = useState<string>('')
     const [category, setCategory] = useState<string>('')
     const [categoryName, setCategoryName] = useState<string>('')
     const [categories, setCategories] = useState<CategoryType[]>([])
@@ -62,23 +64,23 @@ export default function Create() {
                     imageArray.pop()
                 }
                 const res = await axios.post('/api/products/create-product', {
-                    name, images: imageArray, description, price, amount, category,
-                    categoryProperties: allCatProps
+                    name, images: imageArray, description, price, discount, amount, category,
+                    categoryProperties: allCatProps, sellerName
                 })
                 if(res.status === 201) {
-                    toast(res.data.message)
+                    toast.success(res.data.message, {position:"top-center"})
                     router.push('/products')
-                } else {
-                    toast.error(res.data.message)
                 }
+                return;
             }
             catch(err: any) {
                 console.error(err.message)              
-                toast.error(err.message)      
+                toast.info(err.message, {position:"top-center"})      
             }
         }
         else {
-            toast('Please fill all the details')
+            toast.info('Please fill all the details', { position: "top-center" })
+            return;
         }
     }
 
@@ -99,9 +101,11 @@ export default function Create() {
 
     return (
         <Layout>
-            <form onSubmit={(event: React.MouseEvent<HTMLFormElement>) => createNewProduct(event)}>
+            <form 
+                onSubmit={(event: React.MouseEvent<HTMLFormElement>) => createNewProduct(event)}
+            >
                 <h1>New Product</h1>
-                <label>Product name</label>
+                <label>Name</label>
                 <input 
                     type="text" 
                     placeholder="name" value={name} 
@@ -129,12 +133,12 @@ export default function Create() {
                                         e.target.value, key
                                     )} 
                                 >
-                                <option value={""}>--Select--</option>
-                                {
-                                    values.map((v, ind) => (
-                                        <option key={ind} value={v}>{v}</option>
-                                    ))
-                                }
+                                    <option value={""}>--Select--</option>
+                                    {
+                                        values.map((v, ind) => (
+                                            <option key={ind} value={v}>{v}</option>
+                                        ))
+                                    }
                                 </select>
                             </>
                         } 
@@ -149,7 +153,7 @@ export default function Create() {
                     rows={5}
                     className="mb-4"
                 ></textarea>
-                <label>Product description</label>
+                <label>Description</label>
                 <textarea 
                     rows={7}
                     placeholder="description" 
@@ -157,25 +161,39 @@ export default function Create() {
                     onChange={e => setDescription(e.target.value)}
                     className="pt-3"
                 ></textarea>
-                <label>Product price (₹)</label>
+                <label>Price (₹)</label>
                 <input 
                     type="number" 
                     placeholder="price" 
                     value={price}
                     onChange={e => setPrice(Number(e.target.value))}
                 />
-                <label>Product amount</label>
+                <label>Discount (%)</label>
                 <input 
                     type="number"
-                    placeholder="amount"
+                    placeholder="discount percentage"
+                    value={discount}
+                    onChange={e => setDiscount(Number(e.target.value))}
+                />
+                <label>Quantity</label>
+                <input 
+                    type="number"
+                    placeholder="quantity"
                     value={amount}
                     onChange={e => setAmount(Number(e.target.value))}
+                />
+                <label>Seller Name</label>
+                <input 
+                    type="text"
+                    placeholder="Seller"
+                    value={sellerName}
+                    onChange={e => setSellerName(e.target.value)}
                 />
                 <button 
                     type="submit" 
                     className="p-2 px-3 mt-3 text-lg bg-blue-900 text-gray-200 rounded-sm w-full"
                 >
-                    Create
+                    Create product
                 </button>
             </form>
         </Layout>

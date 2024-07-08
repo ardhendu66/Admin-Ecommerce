@@ -2,9 +2,8 @@ import { NextApiRequest, NextApiResponse } from "next"
 import Product from "@/lib/Product"
 import { ConnectionWithMongoose } from "@/lib/mongoose"
 
-ConnectionWithMongoose()
-
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+    await ConnectionWithMongoose();
     try {
         if(req.method === 'DELETE' && req.query?.id) {
             const product = await Product.findByIdAndDelete(req.query.id)

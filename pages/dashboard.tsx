@@ -3,6 +3,7 @@ import { useSession } from "next-auth/react"
 import Link from "next/link"
 import Image from "next/image"
 import { ClipLoader } from "react-spinners"
+import { loaderColor } from "@/config/config"
 
 export default function Dashboard() {
     const {data: session, status} = useSession()
@@ -13,9 +14,8 @@ export default function Dashboard() {
         <div className="flex items-center justify-center bg-bgGray w-screen min-h-screen">
           <ClipLoader 
             size={150}
-            color="#0369A1"
+            color={loaderColor}
             loading={true}
-            // speedMultiplier={2} 
           />
         </div>
       )

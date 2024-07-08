@@ -4,33 +4,10 @@ import axios from "axios"
 import { toast } from 'react-toastify'
 import Layout from "@/components/Layout"
 import ViewProduct from "@/components/ViewProductImages"
-import { Product, PropertyType, CategoryType, CatProperty } from "@/config/config"
-import { destructDescriptionArray } from "@/components/functions"
-
-const defaultProductAttributes: Product = {
-    _id: '',
-    name: '',
-    description: '',
-    images: [],
-    price: Number(),
-    amount: Number(),
-    __v: 0,
-    category: {
-        _id: '',
-        name: '',
-        parent: {
-            _id: '',
-            name: '',
-            __v: 0
-        },
-        __v: 0,
-        properties: [{
-            name: '',
-            values: []
-        }]
-    },
-    categoryProperties: {}
-}
+import { CategoryType, CatProperty } from "@/config/CategoryTypes";
+import { Product } from "@/config/ProductTypes";
+import { defaultProductAttributes } from "@/config/defaultValues";
+import { destructDescriptionArray } from "@/components/functions";
 
 export default function UpdateSingleProduct() {
     const [productAttribute, setProductAttribute] = useState<Product>(defaultProductAttributes)
@@ -39,7 +16,9 @@ export default function UpdateSingleProduct() {
     const [images, setImages] = useState<string>('')
     const [description, setDescription] = useState<string>('')
     const [price, setPrice] = useState<number>()
+    const [discount, setDiscount] = useState<number>()
     const [amount, setAmount] = useState<number>()
+    const [sellerName, setSellerName] = useState<string>('')
     const [category, setCategory] = useState<string>('')
     const [categoryName, setCategoryName] = useState<string>('')
     const [categories, setCategories] = useState<CategoryType[]>([])
@@ -56,7 +35,7 @@ export default function UpdateSingleProduct() {
 
     useEffect(() => {
         fetchCategories()
-    },)
+    }, [])
     
     useEffect(() => {
         const newCategory = categories.find(c => c._id === category)
@@ -69,7 +48,7 @@ export default function UpdateSingleProduct() {
     useEffect(() => {
         setAllCatProps((prev: any) => {
             categoryProperties?.map(cat => {
-                const newCategory = categories.find(c => c._id === category)
+                const newCategory = categories.find(c => c._id === category) as CategoryType;
                 if(newCategory?.name !== cat.catName) {
                     prev = {}
                 }
@@ -80,7 +59,6 @@ export default function UpdateSingleProduct() {
             console.log("prevObj: ", {...prev}) 
             return {...prev}
         })
-        console.log("render");
     }, [categoryProperties])
 
     function fetchCategories() {
@@ -96,24 +74,23 @@ export default function UpdateSingleProduct() {
     async function fetchSingleProduct() {
         try {
             setIsLoadingProduct(true)
-            const res = await axios.get<Product>(`/api/products/get-product/?id=${id}`)
+            const res = await axios.get<Product>(`/api/products/get-product?id=${id}`)
             const responseData = res?.data
             
             if(responseData) {
                 setProductAttribute(responseData)
                 setName(responseData.name)
                 setDescription(responseData.description)
-                setPrice(responseData.price)   
+                setPrice(responseData.price)
+                setDiscount(responseData.discountPercentage) 
                 setAmount(responseData.amount) 
                 setImages(destructDescriptionArray(responseData.images))
                 setCategory(responseData.category._id)
-            }
-            else {
-                toast('failed to fetch data')
+                setSellerName(responseData.seller)
             }
         }
         catch(err: any) {
-            console.error(err)               
+            console.error(err.message)               
         }
         finally {
             setIsLoadingProduct(false)
@@ -129,7 +106,7 @@ export default function UpdateSingleProduct() {
             }
             const res = await axios.put('/api/products/update-product', {
                 id, name, imageArray, description, price, amount, category,
-                categoryProperties: allCatProps
+                categoryProperties: allCatProps, discount, sellerName
             })
             if(res.status === 202) {
                 toast.success(`${res.data.message} 😊`)
@@ -139,7 +116,7 @@ export default function UpdateSingleProduct() {
             }
         }
         catch(err: any) {
-            toast.error(err.message)         
+            toast.error(err.message, {position: "top-center"})         
         }
     }
 
@@ -161,8 +138,11 @@ export default function UpdateSingleProduct() {
             <form onSubmit={
                 (event: React.MouseEvent<HTMLFormElement>) => updateExistingProduct(event, id)
             }>
-                <label>Product name</label>
-                <input type="text" placeholder="name" value={name} 
+                <label>Name</label>
+                <input 
+                    type="text" 
+                    placeholder="name" 
+                    value={name} 
                     onChange={e => setName(e.target.value)}
                     className="mb-4"
                 />
@@ -211,7 +191,6 @@ export default function UpdateSingleProduct() {
                         </div>
                     ))
                 }
-                
                 <label>Photos</label>
                 <textarea 
                     placeholder="image-link" 
@@ -220,7 +199,7 @@ export default function UpdateSingleProduct() {
                     rows={5}
                     className="mb-4"
                 ></textarea>
-                <label>Product description</label>
+                <label>Description</label>
                 <textarea 
                     placeholder="description" 
                     value={description}
@@ -228,23 +207,44 @@ export default function UpdateSingleProduct() {
                     rows={7}
                     className="pt-3"
                 ></textarea>
-                <label>Product price (₹)</label>
-                <input type="number" placeholder="price" value={price}
+                <label>Price (₹)</label>
+                <input 
+                    type="number" 
+                    placeholder="price" 
+                    value={price}
                     onChange={e => setPrice(Number(e.target.value))}
                 />
-                <label>Product amount</label>
+                <label>Discount (%)</label>
                 <input 
                     type="number"
-                    placeholder="amount"
+                    placeholder="discount percentage"
+                    value={discount}
+                    onChange={e => setDiscount(Number(e.target.value))}
+                />
+                <label>Quantity</label>
+                <input 
+                    type="number"
+                    placeholder="quantity"
                     value={amount}
                     onChange={e => setAmount(Number(e.target.value))}
                 />
-                <button type="submit"
+                <label>Seller Name</label>
+                <input 
+                    type="text"
+                    placeholder="Seller"
+                    value={sellerName}
+                    onChange={e => setSellerName(e.target.value)}
+                />
+                <button 
+                    type="submit"
                     className="py-2 px-3 mt-3 text-xl bg-blue-900 text-gray-200 rounded-sm w-full shadow-md tracking-wide"
-                > Update </button>
+                > 
+                    Update 
+                </button>
             </form>
             
-            <ViewProduct id={id}
+            <ViewProduct 
+                id={id}
                 product={productAttribute}
                 fetchProduct={fetchSingleProduct}
             />            

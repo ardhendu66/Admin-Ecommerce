@@ -6,12 +6,12 @@ import { ClipLoader } from "react-spinners"
 import { withSwal } from "react-sweetalert2"
 import { toast } from "react-toastify"
 import Layout from "@/components/Layout"
-import { Product } from "@/config/config"
+import { Product } from "@/config/ProductTypes"
+import { loaderColor } from "@/config/config"
 
 const ProductComponent = ({swal}: any) => {
     const [products, setProducts] = useState<Product[]>([])
     const [isLoading, setIsLoading] = useState<boolean>(false)
-    const router = useRouter();
 
     const fetchProducts = async () => {
         try {
@@ -51,9 +51,6 @@ const ProductComponent = ({swal}: any) => {
                     fetchProducts().then(() => {});
                 })
             }
-            else {
-                swal.fire('Deletion failed! 🥲', '', 'info')
-            }
         })
         .catch((err: any) => {
             swal.fire('Deletion failed! 🥲', '', 'error')
@@ -91,7 +88,7 @@ const ProductComponent = ({swal}: any) => {
                     <tr>
                         <td className="text-center p-3">
                             <ClipLoader 
-                                color="#1b6ea5"
+                                color={loaderColor}
                                 size={60}
                                 speedMultiplier={2}
                                 loading={true}
@@ -99,7 +96,7 @@ const ProductComponent = ({swal}: any) => {
                         </td>
                         <td className="text-center p-3">
                             <ClipLoader 
-                                color="#1b6ea5"
+                                color={loaderColor}
                                 size={60}
                                 speedMultiplier={2}
                                 loading={true}
@@ -115,7 +112,10 @@ const ProductComponent = ({swal}: any) => {
                             <td 
                                 className="flex justify-around max-md:flex-col max-lg:gap-2 p-3 border-none"
                             >
-                                <button type="button" className="w-1/3 max-lg:w-1/2 max-md:w-full bg-blue-800 text-white text-lg px-1 py-2 rounded-md tracking-widest">
+                                <button 
+                                    type="button" 
+                                    className="w-1/3 max-lg:w-1/2 max-md:w-full bg-blue-800 text-white text-lg px-1 py-2 rounded-md tracking-widest"
+                                >
                                     <Link href={`/products/update/${item?._id}`}> 
                                         Edit
                                     </Link>
