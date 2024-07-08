@@ -3,7 +3,7 @@ import axios from "axios"
 import { toast } from "react-toastify"
 import Layout from "@/components/Layout"
 import { withSwal } from "react-sweetalert2"
-import { CategoryType } from "@/config/config"
+import { CategoryType } from "@/config/CategoryTypes"
 import { MdDelete } from "react-icons/md";
 import { ClipLoader } from "react-spinners"
 
