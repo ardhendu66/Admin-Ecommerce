@@ -9,7 +9,17 @@ export const defaultProductAttributes: Product = {
     discountPercentage: Number(),
     amount: Number(),
     __v: 0,
-    category: '',
+    category: {
+        _id: '',
+        name: '',
+        subCategory: [{
+            name: '',
+            properties: {}
+        }],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        __v: 0
+    },
     categoryProperties: {},
     seller: '',
     ratingAndReview: {

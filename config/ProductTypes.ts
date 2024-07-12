@@ -9,7 +9,7 @@ export interface Product {
     discountPercentage: number,
     amount: number,
     __v: number,
-    category: string,
+    category?: CategoryClass,
     subCategory?: string,
     categoryProperties: Object,
     createdAt: Date,
