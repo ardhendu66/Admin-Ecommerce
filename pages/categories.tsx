@@ -1,352 +1,146 @@
-import { useEffect, useState } from "react"
-import axios from "axios"
-import { toast } from "react-toastify"
-import Layout from "@/components/Layout"
-import { withSwal } from "react-sweetalert2"
-import { CategoryType } from "@/config/CategoryTypes"
-import { MdDelete } from "react-icons/md";
-import { ClipLoader } from "react-spinners"
+import { useEffect, useState } from "react";
+import axios from "axios";
+import Link from "next/link";
+import Layout from "@/components/Layout";
+import { CategoryClass } from "@/config/CategoryTypes";
+import { ClipLoader } from "react-spinners";
+import { loaderColor } from "@/config/config";
+import { withSwal } from "react-sweetalert2";
 
-const CategoriesPage = ({swal}: any) => {
-    const [categoryList, setCategoryList] = useState<CategoryType[]>([])
-    const [category, setCategory] = useState<CategoryType | null>(null)
-    const [categoryName, setCategoryName] = useState('')
-    const [properties, setProperties] = useState<Object>({})
-    const [parentCategory, setParentCategory] = useState('')
-    const [editedCategoryName, setEditedCategoryName] = useState<string | null>(null)
-    const [isEditingDone, setIsEditingDone] = useState(false)
-    const [isLoading, setIsLoading] = useState(false)
+const CategoryPage = ({swal}: any) => {
+    const [categoryList, setCategoryList] = useState<CategoryClass[]>([]);
+    const [isLoadingCategories, setisLoadingCategories] = useState(false);
+
+    const fetchCategories = async () => {
+        try {
+            const res = await axios.get<CategoryClass[]>('/api/categories/get');
+            setCategoryList(res.data);
+        }
+        catch(err: any) {
+            console.error(err.message);
+        }
+        finally {
+            setisLoadingCategories(false);
+        }
+    }
 
     useEffect(() => {
-        fetchCategories()
+        setisLoadingCategories(true);
+        fetchCategories();
     }, [])
 
-    const fetchCategories = () => {
-        setIsLoading(true);
-        axios.get<CategoryType[]>('/api/categories/get')
-        .then((res: any) => {           
-            setCategoryList(res.data)
-        })
-        .catch(err => {
-            console.error(err);            
-        })
-        .finally(() => {
-            setTimeout(() => {
-                setIsLoading(false);
-            }, 1500)
-        })
-    }
-
-    const saveCategory = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault()       
-        if(editedCategoryName) {
-            for(const key in properties) {
-                const value: any = properties[key as keyof typeof properties]
-                if(Array.isArray(value) === false) {
-                    properties[key as keyof typeof properties] = value.split(",")
+    const deleteSelectedCategory = async (id: string, subCategory: string) => {
+        try {
+            const response = await swal.fire({
+                title: 'Are you sure ?',
+                text: `Do you want to delete ${subCategory}`,
+                showCancelButton: true,
+                cancelButtonText: 'Cancel',
+                confirmButtonText: 'Yes, Delete',
+                confirmButtonColor: "#f51616",
+                reverseButtons: true,
+            })
+            if(response.isConfirmed) {
+                const res = await axios.delete(
+                    `api/categories/delete?id=${id}&sname=${subCategory}`
+                )
+                if(res.status === 202) {
+                    swal.fire(`${subCategory} ${res.data.message} 🙂`, '', 'success');
+                }
+                else if(res.status === 200) {
+                    swal.fire(`${subCategory} ${res.data.message} 🥲`, '', 'info');
                 }
             }
-            
-            const axiosBody = { 
-                name: categoryName, parent: parentCategory, id: category?._id, properties
-            }
-            const res = await axios.put('/api/categories/update', axiosBody)
-            res.status === 202
-                ?
-            (
-                toast(res.data.message),
-                setIsEditingDone(false)
-            )
-                :
-            toast.error(res.data.message)
         }
-        else {
-            for(const key in properties) {
-                const value: any = properties[key as keyof typeof properties]
-                if(Array.isArray(value) === false) {
-                    properties[key as keyof typeof properties] = value.split(",")
-                }
-            }
-
-            if(categoryName === "") {
-                toast.info("Category-Name must have to be filled", { position: "top-center"})
-                return;
-            }
-            const axiosBody = {
-                name: categoryName, parent: parentCategory, properties
-            }
-            const res = await axios.post('/api/categories/create', axiosBody)
-            if(res.status === 201 || res.status === 202) {
-                toast.success(res.data.message, { position: "top-center" })
-            }
+        catch(err: any) {
+            console.error(err.message);            
         }
-        setCategoryName('')
-        setParentCategory('')
-        setProperties([])
-        fetchCategories()
-    }
-
-    const editCategory = (eCategory: CategoryType) => {
-        setIsEditingDone(true)
-        setEditedCategoryName(eCategory.name)
-        setCategoryName(eCategory?.name)
-        setCategory(eCategory)
-        setProperties((prev: any) => {
-            if(eCategory.properties) {
-                Object.entries(eCategory.properties).map(([key, value]: [string, string[]]) => {
-                    prev[key] = value
-                })
-            }
-            return prev;
-        })
-    }
-
-    const deleteSelectedCategory = (category: CategoryType) => {
-        swal.fire({
-            title: 'Are you sure ?',
-            text: `Do you want to delete ${category.name}`,
-            showCancelButton: true,
-            cancelButtonText: 'Cancel',
-            confirmButtonText: 'Yes, Delete',
-            confirmButtonColor: "#f51616",
-            reverseButtons: true,
-        })
-        .then((res: any) => {
-            if(res.isConfirmed) {
-                axios.delete('/api/categories/delete', {
-                    data: { id: category._id }
-                })
-                .then(res => {
-                    swal.fire(`Deleted ${category.name}! 😒`, '', 'success')
-                })
-                .catch(err => toast.error(err.message))
-                .finally(() => fetchCategories())
-            }
-            else {
-                swal.fire('Delete action aborted! 🥲', '', 'info')
-            }
-        })
-        .catch((err: any) => {
-            console.error(err.message)
-        })
-    }
-
-    const addNewProperties = (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault()
-        const newObject = {
-            [""]: ""
+        finally {
+            fetchCategories();
         }
-        setProperties(prev => ({...prev, ...newObject}))
     }
-
-    const handlePropertyNameChange = (newKey: string, key: string) => {
-        const oldObject: any = properties
-        const values = oldObject[key]
-        oldObject[newKey] = values
-        delete oldObject[key]
-        setProperties(prev => ({...prev, ...oldObject}))
-    }
-
-    const handlePropertyValueChange = (value: string, key: string, previousValues: string) => {
-        const oldObject: any = properties
-        oldObject[key] = value
-        setProperties(prev => ({...prev, ...oldObject}))
-    }
-
-    const removeProperty = (key: string) => {
-        const oldObject: any = properties
-        delete oldObject[key]
-        setProperties(prev => ({...prev, ...oldObject}))
-    }
-
 
     return (
         <Layout>
-            <div className="flex justify-between mb-6">
-                <h1 className="text-4xl font-bold underline">Categories</h1>
-                <button className={
-                    `${!isEditingDone && "hidden"} bg-gray-500 text-white px-3 rounded-md`}
-                    onClick={() => {
-                        setIsEditingDone(false)
-                        setProperties({})
-                        setCategory(null)
-                        setEditedCategoryName('')
-                        setCategoryName('')
-                        setParentCategory('')
-                    }}
-                >
-                    Go back →
-                </button>
-            </div>
-            <label className="text-2xl font-semibold">
-                {editedCategoryName ? `Edit ${editedCategoryName}` : 'New Category Name' }
-            </label>
-            <form className="flex flex-col mt-2" onSubmit={e => saveCategory(e)}>
-                <div className="flex justify-start gap-4">
-                    <input 
-                        type="text" 
-                        placeholder="Category name"
-                        value={categoryName}
-                        className="w-full h-full py-2 pl-2"
-                        onChange={e => setCategoryName(e.target.value)}
-                    />
-                    <select className="w-full" value={parentCategory}
-                        onChange={e => setParentCategory(e.target.value)}
-                    >
-                        <option value={""}> Select parent category </option>
-                        {   
-                            categoryList.length > 0 && categoryList?.map((category, index) => (
-                                <option key={index} value={(category._id)} className="text-black">
+            <Link 
+                href={'/categories/create'} 
+                className="bg-blue-800 text-white text-lg font-semibold px-10 py-2 rounded-[4px] mb-4"
+            >
+                Create New Category
+            </Link>
+            <h1 className="text-3xl font-semibold mt-6 mb-2 underline">All Categories</h1>
+            {
+                isLoadingCategories
+                    ?
+                <div className="text-center mt-6">
+                    <ClipLoader color={loaderColor} size={90} />
+                </div>
+                    :
+                <div className="mt-6">
+                    <div className="grid grid-cols-3 gap-4 max-md:grid-cols-2 max-xsm:grid-cols-1">
+                    {
+                        categoryList.length > 0
+                            &&
+                        categoryList?.map(category => (
+                            <div 
+                                key={category._id}
+                                className={`${!category.subCategory.length && "hidden"} col-span-1 border-gray-300 border rounded-md py-3 px-4`}
+                            >
+                                <div className="px-2 text-3xl font-bold mb-4 rounded-sm tracking-wide uppercase text-center font-mono text-gray-500">
                                     {category.name}
-                                </option>
-                            ))
-                        }
-                    </select>
+                                </div>
+                                <div className="mb-3">
+                                {
+                                    category.subCategory.length > 0
+                                        &&
+                                    category.subCategory?.map((subCat, index) => (
+                                        <div key={index}
+                                            className="flex items-center justify-between text-lg text-gray-500 font-semibold border border-gray-300 px-4 py-2 my-2 rounded-md"
+                                        >
+                                            <div>
+                                            {
+                                                subCat.name.length > 20
+                                                    ?
+                                                `${subCat.name.substring(0, 19)}...`
+                                                    : 
+                                                subCat.name
+                                            }
+                                            </div>
+                                            <div className="flex flex-col gap-y-2">
+                                                <Link 
+                                                    href={`/categories/update/${category._id}?cname=${category.name}&sname=${subCat.name}&id=${category._id}`}
+                                                    className="bg-gray-500 text-white py-1 rounded-lg text-center"
+                                                >
+                                                    Edit
+                                                </Link>
+                                                <button
+                                                    type="button"
+                                                    className="bg-red-600 text-white px-3 py-1 rounded-lg"
+                                                    onClick={
+                                                        () => deleteSelectedCategory(
+                                                            category._id,subCat.name
+                                                        )
+                                                    }
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))
+                                }
+                                </div>
+                            </div>
+                        ))
+                    }
+                    </div>
                 </div>
-                <div className="mt-1 mb-3">
-                    <label className="text-xl font-semibold">Properties</label>
-                    <button type="button" className="bg-slate-600 px-4 py-2 ml-3 rounded-md text-xl font-semibold"
-                        onClick={e => addNewProperties(e)}
-                    >
-                        Add new property
-                    </button>
-                </div>
-                <div className="mb-3">
-                {
-                    Object.keys(properties).length > 0 && 
-                    Object.entries(properties)?.map(([key, value], index) => (
-                        <div key={index} className="flex justify-between gap-1">
-                            <input type="text" value={key}
-                                className="w-[47%] text-black" 
-                                placeholder="Property name (example: color)"
-                                onChange={e => handlePropertyNameChange(
-                                    e.target.value, key
-                                )}
-                            />
-                            <input type="text" value={value}
-                                className="w-[47%] text-black" 
-                                placeholder="Property values (comma seperated)"
-                                onChange={e => handlePropertyValueChange(
-                                    e.target.value, key, value
-                                )}
-                            />
-                            <MdDelete 
-                                type="button"
-                                className="w-10 h-10 text-red-600 cursor-pointer -mt-1"
-                                onClick={() => removeProperty(key)}
-                            />
-                        </div>
-                    ))
-                }
-                </div>
-                <button type="submit" className={`bg-blue-900 px-3 py-3 rounded-md text-2xl font-semibold`}>
-                { isEditingDone ? "Update" : "Create" }
-                </button>
-            </form>
-            
-            <table className="w-full mt-4">
-                <thead className="w-full">
-                    <tr className="w-full">
-                        <td className="w-1/3 text-white text-center bg-sky-600 p-2 font-bold text-2xl">
-                            Category Name
-                        </td>
-                        <td className="w-1/3 text-white text-center bg-sky-600 p-2 font-bold text-2xl">
-                            Parent Category
-                        </td>
-                        <td className="w-1/3 text-white text-center bg-sky-600 p-2 font-bold text-2xl">
-                            Action
-                        </td>
-                    </tr>
-                </thead>
-                <tbody className="w-full">
-                {
-                    category && isEditingDone
-                        ? 
-                    (
-                        <tr>
-                            <td className="text-center p-2">{category.name}</td>
-                            <td className="text-center p-2">{category?.parent?.name}</td>
-                            <td className="flex justify-around p-2 max-lg:justify-between max-md:flex-col max-lg:px-3 max-md:px-2 max-lg:gap-2 border-none">
-                                <button 
-                                    type="button"
-                                    className="w-1/3 max-lg:w-1/2 max-md:w-full bg-blue-800 text-white text-lg px-1 py-2 rounded-md tracking-widest"
-                                    onClick={() => editCategory(category)}
-                                >
-                                    Edit
-                                </button>
-                                <button
-                                    type="button"
-                                    className="w-1/3 max-lg:w-1/2 max-md:w-full bg-red-700 text-white text-lg px-1 py-2 rounded-md tracking-wide"
-                                    onClick={() => {
-                                        deleteSelectedCategory(category)
-                                    }}
-                                >
-                                    Delete
-                                </button>
-                            </td>
-                        </tr>
-                    )
-                        :
-                    isLoading
-                        ?
-                    <tr>
-                        <td className="text-center p-2">
-                            <ClipLoader 
-                                color="#1b6ea5"
-                                size={60}
-                                speedMultiplier={2}
-                                loading={isLoading}
-                            />
-                        </td>
-                        <td className="text-center p-2">
-                            <ClipLoader 
-                                color="#1b6ea5"
-                                size={60}
-                                speedMultiplier={2}
-                                loading={isLoading}
-                            />
-                        </td>
-                        <td className="text-center p-2">
-                            <ClipLoader 
-                                color="#1b6ea5"
-                                size={60}
-                                speedMultiplier={2}
-                                loading={isLoading}
-                            />
-                        </td>
-                    </tr>
-                        :
-                    categoryList.length > 0 && categoryList?.map((cat, index) => (
-                        <tr key={index} className="text-lg font-semibold">
-                            <td className="text-center p-2">{cat.name}</td>
-                            <td className="text-center p-2">{cat?.parent?.name}</td>
-                            <td className="flex justify-around p-2 max-lg:justify-between max-md:flex-col max-lg:px-3 max-md:px-2 max-lg:gap-2 border-none">
-                                <button 
-                                    type="button"
-                                    className={`w-1/3 max-lg:w-1/2 max-md:w-full bg-blue-800 text-white text-lg px-1 py-2 rounded-md tracking-widest`}
-                                    onClick={() => editCategory(cat)}
-                                >
-                                    Edit
-                                </button>
-                                <button
-                                    type="button"
-                                    className="w-1/3 max-lg:w-1/2 max-md:w-full bg-red-700 text-white text-lg px-1 py-2 rounded-md tracking-wide"
-                                    onClick={() => deleteSelectedCategory(cat)}
-                                >
-                                    Delete
-                                </button>
-                            </td>
-                        </tr>
-                    ))
-                }
-                </tbody>
-            </table>
+            }
         </Layout>
     )
 }
 
 const Categories = withSwal(({swal}: any, ref: any) => (
-    <CategoriesPage swal={swal} />
+    <CategoryPage swal={swal} />
 ))
 
 export default Categories;

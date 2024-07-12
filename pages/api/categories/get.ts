@@ -1,20 +1,38 @@
 import { NextApiRequest, NextApiResponse } from "next"
-import Categories from "@/lib/Categories"
-import { ConnectionWithMongoose } from "@/lib/mongoose"
-
-ConnectionWithMongoose()
+import CategoryModel from "@/lib/Categories";
+import { ConnectionWithMongoose } from "@/lib/mongoose";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+    await ConnectionWithMongoose();
     try {
         if(req.method === 'GET') {
-            const categories = await Categories.find({}).populate('parent')
+            if(req.query.id && req.query.sname) {
+                const { id, sname }: any = req.query;
+                const category = await CategoryModel.findById(id, {
+                    subCategory: {
+                        $elemMatch: {
+                            name: sname
+                        }
+                    }
+                })
+                if(category) {
+                    const newCategory = {
+                        _id: category._id,
+                        name: category.subCategory[0].name,
+                        properties: category.subCategory[0].properties
+                    }
+                    return res.status(200).json(newCategory);
+                }
+                return res.status(205).json({message: "Category not found"});
+            }
 
+            const categories = await CategoryModel.find();
             return (
                 categories
                     ?
                 res.status(200).json(categories)
                     :
-                res.status(403).json({message: 'Failed to fetch the Categories 😣'})
+                res.status(205).json({message: 'Failed to fetch the Categories 😣'})
             )
         }
     }

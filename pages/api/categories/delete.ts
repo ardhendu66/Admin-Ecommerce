@@ -1,17 +1,23 @@
-import { NextApiRequest, NextApiResponse } from "next"
-import Categories from "@/lib/Categories"
-import { ConnectionWithMongoose } from "@/lib/mongoose"
-
-ConnectionWithMongoose()
+import { NextApiRequest, NextApiResponse } from "next";
+import CategoryModel from "@/lib/Categories";
+import { ConnectionWithMongoose } from "@/lib/mongoose";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+    await ConnectionWithMongoose();
     try {
         if(req.method === 'DELETE') {
-            const category = await Categories.findByIdAndDelete(req.body.id)
+            const { id, sname } = req.query;
+            const category = await CategoryModel.findByIdAndUpdate(id, {
+                $pull: {
+                    subCategory: {
+                        name: sname
+                    }
+                }
+            })
             if(category) {
-                return res.status(202).json({message: ' has been deleted successfully 😊'})
+                return res.status(202).json({message: "deleted successfully"});
             }
-            return res.status(203).json({message: 'Category deletion failed 😒'})
+            return res.status(200).json({message: "not deleted"});
         }
     }
     catch(err: any) {

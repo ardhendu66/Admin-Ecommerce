@@ -1,51 +1,28 @@
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import axios from "axios"
-import { toast } from 'react-toastify'
-import Layout from "@/components/Layout"
-import { CategoryType, CatProperty } from "@/config/CategoryTypes"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import axios from "axios";
+import { toast } from 'react-toastify';
+import Layout from "@/components/Layout";
+import { CategoryClass } from "@/config/CategoryTypes";
 
 export default function Create() {
-    const router = useRouter()
-    const [name, setName] = useState<string>('')
-    const [images, setImages] = useState<string>('')
-    const [description, setDescription] = useState<string>('')
-    const [price, setPrice] = useState<number>()
-    const [discount, setDiscount] = useState<number>()
-    const [amount, setAmount] = useState<number>()
-    const [sellerName, setSellerName] = useState<string>('')
-    const [category, setCategory] = useState<string>('')
-    const [categoryName, setCategoryName] = useState<string>('')
-    const [categories, setCategories] = useState<CategoryType[]>([])
-    const [categoryProperties, setCategoryProperties] = useState<CatProperty[]>([])
-    const [allCatProps, setAllCatProps] = useState<Object>({})
-    const [properties, setProperties] = useState<Object>({})
+    const [name, setName] = useState('');
+    const [images, setImages] = useState('');
+    const [description, setDescription] = useState('');
+    const [price, setPrice] = useState<number>();
+    const [discount, setDiscount] = useState<number>();
+    const [amount, setAmount] = useState<number>();
+    const [sellerName, setSellerName] = useState('');
+    const [category, setCategory] = useState('');
+    const [subCategory, setSubCategory] = useState('');
+    const [singleCategory, setSingleCategory] = useState<CategoryClass | null>(null);
+    const [categories, setCategories] = useState<CategoryClass[]>([]);
+    const [categoryProperties, setCategoryProperties] = useState<Object>({});
+    const [properties, setProperties] = useState<Object>({});
+    const router = useRouter();
 
-    useEffect(() => {
-        fetchCategories()
-    }, [])
-
-    useEffect(() => {
-        const newCategory = categories.find(c => c._id === category)
-        if(typeof newCategory !== 'undefined') {
-            setProperties(newCategory.properties)
-            setCategoryName(newCategory.name)
-        }      
-    }, [category])
-
-    useEffect(() => {
-        setAllCatProps((prev: any) => {
-            categoryProperties?.map(cat => {
-                prev = {...prev, ...cat.properties}
-            })
-            console.log("prevObj: ", {...prev}) 
-            return {...prev}
-        })
-        console.log("render");
-    }, [categoryProperties])
-
-    function fetchCategories() {
-        axios.get<CategoryType[]>('/api/categories/get')
+    const fetchCategories = () => {
+        axios.get<CategoryClass[]>('/api/categories/get')
         .then(res => {
             setCategories(res.data)
         })
@@ -55,8 +32,31 @@ export default function Create() {
         })
     }
 
+    useEffect(() => {
+        fetchCategories();
+    }, [])
+
+    useEffect(() => {
+        const newCategory = categories.find(c => c._id === category)
+        if(typeof newCategory !== 'undefined') {
+            setSingleCategory(newCategory);
+        }      
+    }, [category])
+
+    useEffect(() => {
+        setProperties(prev => {
+            const subCategoryObject = singleCategory?.subCategory.find(
+                s => s.name === subCategory
+            );
+            if(typeof subCategoryObject !== "undefined") {
+                prev = subCategoryObject.properties;
+            }
+            return prev;
+        })
+    }, [subCategory])
+
     const createNewProduct = async (event: React.MouseEvent<HTMLFormElement>) => {
-        event.preventDefault()
+        event.preventDefault();
         if(name && description && price && images && amount) {
             try {
                 let imageArray = images.split(",")
@@ -65,10 +65,10 @@ export default function Create() {
                 }
                 const res = await axios.post('/api/products/create-product', {
                     name, images: imageArray, description, price, discount, amount, category,
-                    categoryProperties: allCatProps, sellerName
+                    categoryProperties, sellerName
                 })
                 if(res.status === 201) {
-                    toast.success(res.data.message, {position:"top-center"})
+                    toast.success(res.data.message, { position:"top-center" })
                     router.push('/products')
                 }
                 return;
@@ -86,15 +86,10 @@ export default function Create() {
 
     const changePropertyValues = (value: string, key: string) => {        
         setCategoryProperties(prev => {
-            return [
-                ...prev, 
-                ...[{
-                    catName: categoryName, 
-                    properties: { 
-                        [key]: value
-                    }
-                }]
-            ]
+            const obj = {
+                [key]: value
+            }
+            return { ...prev, ...obj };
         })
     }
 
@@ -104,7 +99,7 @@ export default function Create() {
             <form 
                 onSubmit={(event: React.MouseEvent<HTMLFormElement>) => createNewProduct(event)}
             >
-                <h1>New Product</h1>
+                <h1 className="text-3xl font-semibold underline">New Product Creation</h1>
                 <label>Name</label>
                 <input 
                     type="text" 
@@ -112,36 +107,47 @@ export default function Create() {
                     onChange={e => setName(e.target.value)}
                 />
                 <label>Category</label>
-                <select value={category} onChange={e => setCategory(e.target.value)}>
-                    <option value='' className="font-medium text-lg"> --Select-- </option>
-                    {
-                        categories.map((c, index) => (
-                            <option value={c._id} key={index}>
-                                {c.name}
-                            </option>
-                        ))
-                    }
+                <select 
+                    value={category} 
+                    onChange={e => setCategory(e.target.value)}
+                >
+                    <option value='' className="font-medium text-lg">
+                        Select category
+                    </option>
+                    {categories.map((c, index) => <option key={index} value={c._id}> 
+                            {c.name} 
+                        </option>
+                    )}
+                </select>
+                <label>SubCategory</label>
+                <select
+                    value={subCategory}
+                    onChange={e => setSubCategory(e.target.value)}
+                >
+                    <option value='' className="font-medium text-lg">
+                        Select subcategory
+                    </option>
+                    {singleCategory?.subCategory.map((sub_cat, ind) => (
+                        <option key={ind} value={sub_cat.name}>
+                            {sub_cat.name}
+                        </option> 
+                    ))}
                 </select>
                 {
-                    Object.entries(properties).map(([key, values]: [string, string[]], index) => (
-                        <div key={index} className="flex justify-between gap-2">
-                        {
-                            <>
-                                <div className="w-1/5">{key}</div>
-                                <select className="w-4/5" 
-                                    onChange={e => changePropertyValues(
-                                        e.target.value, key
-                                    )} 
-                                >
-                                    <option value={""}>--Select--</option>
-                                    {
-                                        values.map((v, ind) => (
-                                            <option key={ind} value={v}>{v}</option>
-                                        ))
-                                    }
-                                </select>
-                            </>
-                        } 
+                    (typeof properties !== "undefined" || properties !== null) 
+                        &&
+                    Object.entries(properties).map(([key, values]: any, index) => (
+                        <div key={index} className="flex items-center justify-between gap-2">
+                            <div className="ml-6 w-1/5"> {key} </div>
+                            <select className="w-4/5"
+                                onChange={e => changePropertyValues(
+                                    e.target.value, key
+                                )}
+                            >
+                            {values.map((v: string, ind: number) => (
+                                <option key={ind} value={v}> {v} </option>
+                            ))}
+                            </select>
                         </div>
                     ))
                 }
@@ -191,9 +197,9 @@ export default function Create() {
                 />
                 <button 
                     type="submit" 
-                    className="p-2 px-3 mt-3 text-lg bg-blue-900 text-gray-200 rounded-sm w-full"
+                    className="p-2 px-3 mt-3 text-2xl font-semibold bg-blue-900 text-gray-200 rounded-sm w-full"
                 >
-                    Create product
+                    Create New Product
                 </button>
             </form>
         </Layout>

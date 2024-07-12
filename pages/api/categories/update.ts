@@ -1,37 +1,24 @@
 import { NextApiRequest, NextApiResponse } from "next"
-import Categories from "@/lib/Categories"
+import CategoryModel from "@/lib/Categories";
 import { ConnectionWithMongoose } from "@/lib/mongoose"
 
-ConnectionWithMongoose()
-
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+    await ConnectionWithMongoose();
     try {
         if(req.method === 'PUT') {
-            let category;
-            if(req.body.parent === "") {
-                const { name, id, properties } = req.body
-                
-                await Categories.findByIdAndUpdate(id, {
-                    name, properties 
-                    // $unset: { parent: 1 },
-                })
-                category = await Categories.findById(id)
+            const { id, categoryName, subCategoryName, properties } = req.body;            
+            const category = await CategoryModel.findOneAndUpdate({
+                _id: id,
+                "subCategory.name": subCategoryName,
+            }, {
+                $set: {
+                    "subCategory.$.properties": properties
+                }
+            })
+            if(category) {
+                return res.status(202).json({message: "Category updated successfully"})
             }
-            else {
-                const { id, name, parent, properties } = req.body
-                await Categories.findByIdAndUpdate(id, {
-                    name, parent, properties
-                })
-                category = await Categories.findById(id)
-            }
-
-            return (
-                category
-                    ?
-                res.status(202).json({message: 'Category has been updated 😊'})
-                    :
-                res.status(403).json({message: 'Category updation failed 😣'})
-            )
+            return res.status(200).json({message: "Category not updated"})
         }
     }
     catch(err: any) {

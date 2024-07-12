@@ -9,7 +9,7 @@ h1, h2, h3, h4, h5, h6, div, input, textarea, span, section, option {
 }
 
 input, textarea, select {
-  @apply border border-gray-800 rounded-md px-2 py-1 w-full text-slate-600 bg-gray-100 font-[500];
+  @apply border-[1.6px] border-gray-800 rounded-md px-4 py-1 w-full text-slate-600 bg-gray-100 font-[500] outline-none;
   @apply mb-2;
 }
 

@@ -1,28 +1,17 @@
-export interface Category {
+export interface SubCategoryExtended {
     _id: string,
     name: string,
-    parent: string,
-    __v: number
-}
-
-export interface CategoryType {
-    _id: string,
-    name: string,
-    __v: number,
-    parent?: {
-        _id?: string,
-        name?: string,
-        __v?: number,
-    },
     properties: Object,
 }
-
-export interface CatProperty {
-    catName: string,
-    properties: Object
+export interface SubCategoryClass {
+    name: string,
+    properties: Object,
 }
-
-export interface PropertyType {
-    catName: string,
-    properties: Object
+export interface CategoryClass {
+    _id: string,
+    name: string,
+    subCategory: SubCategoryClass[],
+    createdAt: Date,
+    updatedAt: Date,
+    __v: number
 }

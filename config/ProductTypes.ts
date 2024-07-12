@@ -1,4 +1,4 @@
-import { CategoryType } from "@/config/CategoryTypes";
+import { CategoryClass } from "./CategoryTypes";
 
 export interface Product {
     _id: string,
@@ -9,7 +9,8 @@ export interface Product {
     discountPercentage: number,
     amount: number,
     __v: number,
-    category: CategoryType,
+    category: CategoryClass,
+    subCategory?: string,
     categoryProperties: Object,
     createdAt: Date,
     updatedAt: Date,
