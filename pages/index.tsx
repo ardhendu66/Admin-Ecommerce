@@ -18,30 +18,30 @@ export default function Index() {
 
   if(!session) {
     return (
-      <div className="flex items-center justify-center bg-sky-600 w-screen min-h-screen">
+      <div className="flex items-center justify-center bg-white w-screen min-h-screen text-black">
         <div 
-          className="floating flex flex-col justify-evenly bg-gray-200 lg:w-[46%] md:w-2/3 max-md:w-full h-72 px-14 pt-5 pb-2 rounded-md shadow-2xl max-md:-ml-4 max-md:-mr-4"
+          className="flex flex-col justify-evenly bg-sky-600 lg:w-[46%] md:w-2/3 max-md:w-full h-72 px-14 pt-5 pb-2 rounded-md shadow-2xl max-md:-ml-4 max-md:-mr-4"
         >
           <button
-            className="flex justify-center items-center bg-sky-500 text-white p-4 rounded-lg text-2xl font-medium font-Nunito hover:scale-105 hover:transition-all"
+            className="flex justify-center items-center bg-gray-200 p-3 rounded-lg text-2xl font-bold font-Nunito hover:scale-105 hover:transition-all text-black"
             onClick={() => signIn('google')}
           >
             <FcGoogle className="w-8 h-8 -ml-4 mr-4" />
             Google Login
           </button>
-          <div className="text-center text-2xl font-mono underline font-semibold">or</div>
+          <div className="text-center text-2xl font-mono underline font-semibold text-white">or</div>
           <Link href={'/auth/login'}
-            className="flex justify-center items-center bg-sky-500 text-white p-4 rounded-lg text-center text-2xl font-medium font-Nunito hover:scale-105 transition-all"
+            className="flex justify-center items-center bg-gray-200 p-3 rounded-lg text-center text-2xl font-bold font-Nunito hover:scale-105 transition-all"
           >
             <FcUnlock className="w-8 h-8 -ml-4 mr-4" />
             Email Login
           </Link>
-          <div className="flex justify-end text-sky-600 text-lg mr-3 mt-1 -mb-2">
+          <div className="flex justify-end text-white text-lg mr-3">
             <span className="mr-2">Don't have an account?</span>
             <Link 
               href={'/auth/register'} 
               className="underline font-semibold hover:scale-110 hover:transition-all"
-            >Sign-up</Link>
+            >Register</Link>
           </div>
         </div>
       </div>

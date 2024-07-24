@@ -56,18 +56,18 @@ export default function SignInPage() {
     }
 
     return (
-        <div className="bg-sky-600 flex flex-col items-center justify-center w-[100vw] min-h-screen">
+        <div className="bg-slate-200 flex flex-col items-center justify-center w-[100vw] min-h-screen">
             <div 
                 className={`${!loginErrorMessage && "hidden"} bg-gray-500 text-white py-2 px-4 rounded-md`}
             >
                 {loginErrorMessage}
             </div>
             <form 
-                className="floating bg-white flex flex-col lg:w-[40%] md:w-2/3 max-md:w-full p-6 shadow-2xl rounded-md border-sky-400 border-t-4 mt-4"
+                className="bg-white flex flex-col lg:w-[40%] md:w-2/3 max-md:w-full p-6 shadow-2xl rounded border-gray-400 border-y-[3px] mt-4"
                 onSubmit={e => signInWithCredentials(e)}
             >
-                <h2 className="text-center -mt-2 mb-6 text-4xl font-semibold tracking-tight">
-                    Sign-in via email
+                <h2 className="text-center -mt-2 mb-6 text-4xl font-bold tracking-tight">
+                    Log in via email
                 </h2>
                 <label className="flex flex-col mb-3">
                     Email
@@ -93,7 +93,7 @@ export default function SignInPage() {
                 </label>
                 <button 
                     type="submit"
-                    className={`${!proceedToSignIn ? "cursor-not-allowed" : "cursor-pointer"} bg-sky-600 text-white p-3 rounded-md font-semibold text-lg shadow-md`}
+                    className={`${!proceedToSignIn ? "cursor-not-allowed" : "cursor-pointer"} bg-gray-500 text-white p-3 rounded-md font-bold text-xl shadow-md`}
                     disabled={!proceedToSignIn}
                 > 
                 {
@@ -115,9 +115,9 @@ export default function SignInPage() {
                     <span className="mr-2">Don't have an account?</span>
                     <Link 
                         href={'/auth/register'} 
-                        className="underline hover:scale-110 hover:transition-all"
+                        className="underline hover:scale-110 hover:transition-all font-bold"
                     >
-                        Sign-up
+                        Register
                     </Link>
                 </div>
             </form>

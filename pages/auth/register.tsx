@@ -57,18 +57,18 @@ export default function RegisterPage() {
     }
 
     return (
-        <div className="bg-sky-600 flex flex-col items-center justify-center w-[100vw] min-h-screen">
+        <div className="bg-slate-200 flex flex-col items-center justify-center">
             <div 
                 className={`mt-2 text-wrap ${showResponseMessage.message === "" && "hidden"} bg-green-700 py-3 px-5 rounded-md text-white font-medium font-Nunito mb-3 text-center`}
             >
                 {showResponseMessage?.message}
             </div>
             <form 
-                className="floating bg-white flex flex-col lg:w-[40%] md:w-2/3 max-md:w-full p-6 shadow-2xl rounded-md border-sky-400 border-t-4"
+                className={`bg-white flex flex-col lg:w-[40%] md:w-2/3 max-md:w-full p-6 shadow-2xl rounded border-gray-400 border-y-[3px] ${showResponseMessage.message === "" && "mt-10"} mb-10`}
                 onSubmit={e => registerWithCredentials(e)}
             >
-                <h2 className="text-center -mt-2 mb-6 text-4xl font-semibold tracking-tight">
-                    Sign-up via your email
+                <h2 className="text-center -mt-2 mb-6 text-4xl font-bold tracking-tight">
+                    Register your details
                 </h2>
                 <label className="flex flex-col mb-1">
                     Full Name
@@ -114,37 +114,34 @@ export default function RegisterPage() {
                         className="mt-1 p-2 border-[1.5px] border-gray-300 rounded-sm outline-none font-semibold placeholder:font-normal"
                     />
                 </label>
+                <button 
+                    type="submit"
+                    className={`${!proceedToRegister ? "cursor-not-allowed" : "cursor-pointer"} bg-gray-500 text-white p-3 rounded-md font-bold text-xl shadow-md`}
+                    disabled={!proceedToRegister}
+                > 
                 {
                     isRegistering
                         ?
-                    <button 
-                        type="submit"
-                        className={`${!proceedToRegister ? "cursor-not-allowed" : "cursor-pointer"} bg-sky-600 text-white p-3 rounded-md font-semibold text-lg shadow-md`}
-                        disabled={!proceedToRegister}
-                    > 
+                    <span>
                         Signing you up
                         <ClipLoader 
                             size={30}
                             color="white"
                             className="ml-2 -mb-2"
                         />
-                    </button>
+                    </span>
                         :
-                    <button 
-                        type="submit"
-                        className={`${!proceedToRegister ? "cursor-not-allowed" : "cursor-pointer"} bg-sky-600 text-white p-3 rounded-md font-semibold text-lg shadow-md`}
-                        disabled={!proceedToRegister}
-                    > 
-                        Sign up
-                    </button>
+                    <span>Sign up</span>
                 }
+                </button>
+                
                 <div className="flex justify-end mt-3 mb-1 w-[96%]">
                     <span className="mr-2">Already have an account?</span>
                     <Link 
                         href={'/auth/login'} 
-                        className="underline hover:scale-110 hover:transition-all"
+                        className="underline hover:scale-110 hover:transition-all font-bold"
                     >
-                        Sign-in
+                        Log in
                     </Link>
                 </div>
             </form>
