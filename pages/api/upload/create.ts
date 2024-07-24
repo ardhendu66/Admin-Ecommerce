@@ -1,37 +1,41 @@
 import { NextApiRequest, NextApiResponse } from "next"
 import Upload from "@/lib/Upload"
 import { ConnectionWithMongoose } from "@/lib/mongoose"
-
-ConnectionWithMongoose()
+interface Body {
+    name: string,
+    brand: string,
+    image: string,
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+    await ConnectionWithMongoose();
     try {
         if(req.method === "POST") {
-            const { name, brand, image } = req.body
-            let pro = await Upload.findOne({name})
-            const result = (brand !== '') ? brand.charAt(0).toUpperCase() + brand.slice(1) : null
+            const { name, brand, image }: Body = req.body;
+            const brand_updated = (
+                (brand !== '') ? brand.charAt(0).toUpperCase() + brand.slice(1) : null
+            );
+            let pro = await Upload.findOne({name});
 
             if(pro) {
-                for(const key in pro.brand) {
-                    if(key === brand) {
-                        return res.status(202).json({message: "Brand already exists"})
+                if(pro.brand[brand]) {
+                    return res.status(200).json({message: "Product already exists"});
+                }
+
+                const newBrand = {
+                    [brand]: [image],
+                    ...pro.brand
+                }
+                const updatedProduct = await Upload.findOneAndUpdate({name}, {
+                    $set: {
+                        brand: newBrand
                     }
+                })
+                if(updatedProduct) {
+                    return res.status(201).json({message: "Product created successfully"});
                 }
-                if(brand !== '') {
-                    const obj = { [result]: [image] }
-                    const newProduct = await Upload.findOneAndUpdate({name}, {
-                        $set: {
-                            brand: {...pro.brand, ...obj}
-                        }
-                    })
-                    return res.status(201).json({
-                        message: "Brand creation successfull", product: newProduct
-                    })
-                }
-                else if(brand === '') {
-                    return res.status(202).json({message: "Invalid brand name"})
-                }
-                return res.status(202).json({message: "Product Name conflicts"})
+
+                return res.status(403).json({message: "Product creation failed"});
             }
 
             const product = await Upload.create({

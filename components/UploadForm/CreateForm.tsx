@@ -1,11 +1,10 @@
 import axios from "axios"
 import { useRouter } from "next/router"
 import Image from "next/image"
-import { CircleLoader, ClipLoader } from "react-spinners"
+import { ClipLoader, ClockLoader } from "react-spinners"
 import { toast } from "react-toastify"
 import { SetStateAction } from "react"
 import { envVariables } from "@/config/config"
-
 interface Props {
     brandName: string,
     previewUrl: Set<string>,
@@ -17,7 +16,8 @@ interface Props {
 }
 
 export default function CreateForm({ 
-    brandName, previewUrl, isUploading, file, setFile, setIsUploading, setPreviewUrl}: Props) 
+    brandName, previewUrl, isUploading, file, setFile, setIsUploading, setPreviewUrl,
+}: Props) 
 {
     const router = useRouter()
 
@@ -32,35 +32,45 @@ export default function CreateForm({
         })
     } 
 
-    const UploadImageForFreshBrand = (e: React.MouseEvent<HTMLFormElement>) => {
+    const UploadImageForFreshBrand = async (e: React.MouseEvent<HTMLFormElement>) => {
         e.preventDefault() 
         if(typeof file !== 'undefined') {
             setIsUploading(true)
             const formData = new FormData()
-            formData.append('file', file)
-            formData.append('upload_preset', envVariables.cloudinaryUploadPreset)
-            formData.append('upload_cloud', envVariables.cloudinaryUploadCloud)
-            formData.append('api_key', envVariables.cloudinaryApiKey)   
-
-            axios.post('https://api.cloudinary.com/v1_1/next-ecom-cloud/image/upload', formData)
-            .then(res => {
-                setIsUploading(false)
-                axios.post('/api/upload/create', {
-                    name: "smartphones", brand: brandName, image: res.data.url
+            formData.append('upload_image', file);
+            try {
+                const resp = await axios.post('/api/upload/cloud', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
                 })
-                .then(res => {
-                    res.status === 200 || res.status === 201 
-                        ?
-                    toast.success(res.data.message)
-                        :
-                    toast.info(res.data.message)
-                    router.reload()                
-                })
-                .catch(err => {
-                    toast.error(err.message)
-                })
-            })
-            .catch(err => toast.error('Image not uploaded!'))
+                if(resp.data) {
+                    try {
+                        const res = await axios.post('/api/upload/create', {
+                            name: "smartphones", brand: brandName, image: resp.data.url
+                        })
+                        if(res.status === 201 || res.status === 200) {
+                            toast.success(res.data.message, { position: "top-center" });
+                            setTimeout(() => {
+                                router.reload();
+                            }, 1500)
+                        }
+                        else toast.info(res.data.message, { position: "top-center" });
+                        // console.log(resp.data);
+                    }
+                    catch(e: any) {
+                        toast.error("Brand not created", { position: "top-center" });
+                        console.error(e.message);
+                    }
+                }
+            }
+            catch(e: any) {
+                toast.error(e.message, { position: "top-center" });
+                console.error(e.message);
+            }
+            finally {
+                setIsUploading(false);
+            }
         }
     }
 
@@ -78,15 +88,14 @@ export default function CreateForm({
                     />
                     <div className="w-full flex px-2"> { 
                         Array.from(previewUrl).map((value, index) => (
-                            <div key={index} className="mx-2">
+                            <div key={index} className="mx-2 flex items-center justify-center">
                             {
                                 isUploading && index === Array.from(previewUrl).length - 1
                                     ?
                                 <div className="flex items-center p-1 h-16">
-                                    <ClipLoader 
-                                        color="#a6abb8" 
-                                        speedMultiplier={2}
-                                        size={10}
+                                    <ClockLoader 
+                                        color="#5cbdfd"
+                                        size={60}
                                         className="w-12 h-12"
                                     />
                                 </div>
@@ -108,18 +117,22 @@ export default function CreateForm({
                 </div>
             </div>
             <button type="submit"
-                className={`border bg-gray-300 text-gray-800 rounded-md shadow-lg cursor-pointer px-4 py-2 mb-3 w-full`}
+                className={`border bg-gray-300 text-gray-800 rounded-md shadow-lg cursor-pointer px-4 py-2 mb-3 w-full sm:w-[300px]`}
                 disabled={isUploading}
             >
             {
                 isUploading 
-                ? 
+                    ? 
                 <div className="flex items-center justify-center">
-                    <span className="mr-1">Uploading</span> 
-                    <ClipLoader size={10} color="#5cbdfd" className="mt-2 w-8 h-8" /> 
+                    <span className="mr-3 text-xl font-bold">Uploading</span> 
+                    <ClipLoader 
+                        size={30} 
+                        color="white" 
+                        className="w-8 h-8" 
+                    /> 
                 </div>
-                : 
-                <span>Upload</span>
+                    : 
+                <span className="text-xl font-bold">Upload</span>
             }
             </button>
         </form>

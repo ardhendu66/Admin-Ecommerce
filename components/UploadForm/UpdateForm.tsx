@@ -1,8 +1,7 @@
 import axios from "axios"
 import { useRouter } from "next/router"
 import Image from "next/image"
-import { CircleLoader, ClipLoader } from "react-spinners"
-import { envVariables } from "@/config/config"
+import { ClockLoader, ClipLoader } from "react-spinners"
 import { toast } from "react-toastify"
 import { SetStateAction } from "react"
 
@@ -34,33 +33,41 @@ export default function UpdateForm({
         })
     }
 
-    const UploadImage = (e: React.MouseEvent<HTMLFormElement>) => {
+    const UploadImage = async (e: React.MouseEvent<HTMLFormElement>) => {
         e.preventDefault() 
         if(typeof file !== 'undefined') {
             setIsUploading(true)
-            const formData = new FormData()
-            formData.append('file', file)
-            formData.append('upload_preset', envVariables.cloudinaryUploadPreset)
-            formData.append('upload_cloud', envVariables.cloudinaryUploadCloud)
-            formData.append('api_key', envVariables.cloudinaryApiKey)   
-
-            axios.post('https://api.cloudinary.com/v1_1/next-ecom-cloud/image/upload', formData)
-            .then(res => {
-                setIsUploading(false)
-                axios.put('/api/upload/update', {
-                    name: 'smartphones', image: res.data.url, brand: brandName
+            const formData = new FormData();
+            formData.append('upload_image', file); 
+            try {
+                const resp = await axios.post('/api/upload/cloud', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
                 })
-                .then(res => {
-                    res.status === 200 || res.status === 201 
-                        ?
-                    toast.success(res.data.message)
-                        :
-                    toast.info(res.data.message)
-                })
-                .catch(err => toast.error(err.message))
-                .finally(() => fetchAllBrands())
-            })
-            .catch(err => toast.error('Image not uploaded!'))
+                if(resp.data) {
+                    try {
+                        const res = await axios.put('/api/upload/update', {
+                            name: 'smartphones', brand: brandName, image: resp.data.url,
+                        })
+                        if(res.status === 202)
+                            toast.success(res.data.message, { position: "top-center" });
+                        else toast.info(res.data.message, { position: "top-center" });
+                        // console.log(resp.data);
+                    }
+                    catch(e: any) {
+                        toast.error("Brand not updated", { position: "top-center" });
+                        console.error(e.message);
+                    }
+                }
+            }
+            catch(e: any) {
+                toast.error("Image not uploaded to cloud", { position: "top-center" });
+                console.error(e.message);
+            }
+            finally {
+                setIsUploading(false);
+            }
         }
     }
 
@@ -84,10 +91,9 @@ export default function UpdateForm({
                                 isUploading && index === Array.from(previewUrl).length - 1
                                     ?
                                 <div className="flex items-center p-1 h-16">
-                                    <ClipLoader 
-                                        color="#a6abb8" 
-                                        speedMultiplier={2}
-                                        size={10}
+                                    <ClockLoader 
+                                        color="#5cbdfd"
+                                        size={60}
                                         className="w-12 h-12"
                                     />
                                 </div>
@@ -110,22 +116,22 @@ export default function UpdateForm({
             </div>
 
             <button type="submit"
-                className={`border bg-gray-300 text-gray-800 rounded-md shadow-lg cursor-pointer px-4 py-2 mb-3 w-full`}
+                className={`border bg-gray-300 text-gray-800 rounded-md shadow-lg cursor-pointer p-3 mb-3 w-full sm:w-[300px]`}
                 disabled={isUploading}
             >
             {
                 isUploading 
                 ? 
                 <div className="flex items-center justify-center">
-                    <span className="mr-1">Uploading</span> 
+                    <span className="mr-3 text-xl font-bold">Uploading</span> 
                     <ClipLoader 
-                        size={10} 
-                        color="#5cbdfd" 
-                        className="mt-2 w-8 h-8"
+                        size={30} 
+                        color="white" 
+                        className="w-8 h-8" 
                     /> 
                 </div>
                 : 
-                <span>Upload</span>
+                <span className="text-xl font-bold">Upload</span>
             }
             </button>
         </form>

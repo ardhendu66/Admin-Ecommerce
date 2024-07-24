@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react"
-import { useRouter } from "next/router"
 import axios from "axios"
 import Image from "next/image"
 import Layout from "@/components/Layout"
@@ -8,19 +7,18 @@ import CreateForm from "@/components/UploadForm/CreateForm"
 import UpdateForm from "@/components/UploadForm/UpdateForm"
 import { IoIosArrowDropup } from "react-icons/io"
 import { IoIosArrowDropdown } from "react-icons/io"
-import { ClipLoader } from "react-spinners"
 
 export default function Smartphones() {
     const [product, setProduct] = useState<Object>({})
     const [singleProduct, setSingleProduct] = useState<Object>({})
-    const [fetchBrand, setFetchBrand] = useState(false)
     const [brandName, setBrandName] = useState('')
     const [file, setFile] = useState<File | undefined>()
     const [previewUrl, setPreviewUrl] = useState<Set<string>>(new Set<string>())
     const [isUploading, setIsUploading] = useState<boolean>(false)
     const [isNewBrandCreation, setIsNewBrandCreation] = useState<boolean>(false)
-    const [showBrandImages, setShowBrandImages] = useState(false)
-    const [nameForShowingBrand, setNameForShowingBrand] = useState('')
+    const [showBrandImages, setShowBrandImages] = useState({
+        index: -1, open: false
+    })
 
     useEffect(() => {
         fetchAllBrands()
@@ -48,9 +46,7 @@ export default function Smartphones() {
                 toast(`${res.data.message} 😊`)
                 fetchAllBrands()
             }
-            else {
-                toast(`${res.data.message} 😕`)
-            }
+            else toast(`${res.data.message} 😕`)
         }
         catch(err: any) {
             toast.error(err.message)
@@ -58,7 +54,6 @@ export default function Smartphones() {
     }
 
     const getProductsOnBrandFilter = (e: React.MouseEvent<HTMLButtonElement>) => {
-        setFetchBrand(true)
         e.preventDefault()
         axios.get(`/api/upload/get?name=smartphones&brand=${brandName}`)
         .then(res => {
@@ -130,14 +125,14 @@ export default function Smartphones() {
                 <div className="mb-5 border-b"></div>
                 {
                     Object.keys(singleProduct).length > 0 
-                    ?
+                        ?
                     Object.entries(singleProduct)?.map(([key, value], index) => (
                         <div key={index} 
-                            className={`my-10 border-b-2 ${value.length ? "border-sky-900" : "border-none"}`}
+                            className={`my-10 border-[1.4px] p-3 rounded ${value.length ? "border-gray-300" : "border-none"}`}
                         > 
                             {
                                 value.length > 0 &&
-                                <div className="text-xl font-medium">{key}</div>
+                                <div className="text-xl font-bold mb-4">{key} Brand</div>
                             }
                             <div 
                                 className="grid lg:grid-cols-4 md:grid-cols-3 xsm:grid-cols-2 max-xsm:grid-cols-1 gap-2 py-1"
@@ -177,40 +172,31 @@ export default function Smartphones() {
                             </div>
                         </div>
                     ))
-                    :
+                        :
                     Object.entries(product).length > 0 
-                    && 
+                        && 
                     Object.entries(product)?.map(([key, value], index) => (
                         <div key={index} 
-                            className={`my-10 border-b-2 ${value.length ? "border-sky-900" : "border-none"}`}
+                            className={`my-10 border-[1.4px] rounded p-3 ${value.length ? "border-gray-300" : "border-none"}`}
                         > 
                             {
                                 value.length > 0 &&
-                                <div className="flex justify-between text-xl font-medium">
-                                    {key}
-                                    {
-                                        nameForShowingBrand !== "" && showBrandImages
-                                        ?
-                                        <IoIosArrowDropup 
-                                            className="w-6 h-6"
-                                            onClick={() => (
-                                                setNameForShowingBrand(key), 
-                                                setShowBrandImages(!showBrandImages)
-                                            )} 
-                                        />
-                                        :
-                                        <IoIosArrowDropdown 
-                                            className="w-6 h-6"
-                                            onClick={() => (
-                                                setNameForShowingBrand(key), 
-                                                setShowBrandImages(!showBrandImages)
-                                            )} 
-                                        />
-                                    }
+                                <div 
+                                    className="flex items-center justify-between text-xl font-bold"
+                                    onClick={() => setShowBrandImages(prev => ({index, open: !prev.open}))}
+                                >
+                                    <div className="flex items-center justify-start gap-x-2">
+                                        <div>{key}</div>
+                                        <div>Brand</div>
+                                    </div>
+                                    <div className="bg-gray-400 h-[1px] w-full mx-4"></div>
+                                    {showBrandImages.index === index && showBrandImages.open 
+                                    ? <IoIosArrowDropup className="w-6 h-6" /> :
+                                    <IoIosArrowDropdown className="w-6 h-6" />}
                                 </div>
                             }
                             <div 
-                                className={`grid lg:grid-cols-4 md:grid-cols-3 xsm:grid-cols-2 max-xsm:grid-cols-1 gap-2 py-1 ${nameForShowingBrand === key && showBrandImages ? "" : "hidden"}`}
+                                className={`grid lg:grid-cols-4 md:grid-cols-3 xsm:grid-cols-2 max-xsm:grid-cols-1 gap-2 py-1 ${showBrandImages.index === index && showBrandImages.open ? "mt-3" : "hidden"}`}
                             >
                             {
                                 value.map((img: string, ind: number) => (
