@@ -35,13 +35,13 @@ export default NextAuth({
           );
           // console.log(isPasswordCorrect);          
           if(!isPasswordCorrect) {
-            console.log("Incorrect Password given!")
-            return null;
+            throw new Error("Incorrect Password given!");
           }
           return user;
         }
         catch(err: any) {
-          console.log(err)
+          console.log(err);
+          throw new Error(err.message);
         }
       },
     }),

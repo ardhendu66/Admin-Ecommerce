@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-export interface User extends mongoose.Document {
+export interface Admin extends mongoose.Document {
     name: string,
     username: string,
     email: string,
@@ -14,7 +14,7 @@ export interface User extends mongoose.Document {
     forgotPasswordTokenExpiry: Date,
 }
 
-export const userSchema: mongoose.Schema<User> = new mongoose.Schema({
+export const adminSchema: mongoose.Schema<Admin> = new mongoose.Schema<Admin>({
     name: {
         type: String,
         required: [true, "Name is required!"],
@@ -78,6 +78,6 @@ export const userSchema: mongoose.Schema<User> = new mongoose.Schema({
     }
 })
 
-const UserModel = mongoose.models?.User || mongoose.model('User', userSchema);
+const UserModel = mongoose.models?.Admin || mongoose.model('Admin', adminSchema);
 
 export default UserModel;

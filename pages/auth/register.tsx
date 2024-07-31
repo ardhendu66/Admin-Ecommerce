@@ -68,7 +68,7 @@ export default function RegisterPage() {
                 onSubmit={e => registerWithCredentials(e)}
             >
                 <h2 className="text-center -mt-2 mb-6 text-4xl font-bold tracking-tight">
-                    Register your details
+                    Create your Admin Account
                 </h2>
                 <label className="flex flex-col mb-1">
                     Full Name
