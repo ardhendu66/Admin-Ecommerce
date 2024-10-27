@@ -4,16 +4,22 @@ import { ConnectionWithMongoose } from "@/lib/mongoose"
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     await ConnectionWithMongoose();
-    try {
-        if(req.method === 'GET') {
-            const productList = await Product.find({}, null, { sort: { createdAt: -1 }})
+    if(req.method === 'GET') {
+        try {
+            const { adminId } = req.query;
+
+            const productList = await Product.find({adminId}, null, { sort: { createdAt: -1 }});
+
             if(productList) {
-                return res.status(200).json(productList)
+                return res.status(200).json(productList);
             }
-            return res.status(204).json({message: "Products not found"})
+
+            return res.status(404).json({message: "Products not found"})
+        }
+        catch(err: any) {
+            return res.status(500).json({message: "something went wrong. error code 500."})
         }
     }
-    catch(err: any) {
-        return res.status(200).json({message: "internal server error :("})
-    }
+
+    return res.status(405).json({message: "Method not allowed"});
 } 

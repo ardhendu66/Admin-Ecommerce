@@ -2,7 +2,7 @@ import NextAuth, { DefaultSession, Session, SessionStrategy } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { ConnectionWithMongoose } from '@/lib/mongoose'
 import { envVariables } from '@/config/config'
-import UserModel from '@/lib/User'
+import UserModel from '@/lib/Admin'
 import bcrypt from 'bcryptjs'
 import { JWT } from 'next-auth/jwt'
 

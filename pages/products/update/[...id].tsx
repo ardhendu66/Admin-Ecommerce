@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { useSession } from "next-auth/react"
 import { useRouter } from "next/router"
 import axios from "axios"
 import { toast } from 'react-toastify'
@@ -30,11 +31,14 @@ export default function UpdateSingleProduct() {
     const [isUpdatingProduct, setIsUpdatingProduct] = useState(false);
     const router = useRouter();
     const { id } = router?.query;
+    const { data: session } = useSession();
 
     async function fetchSingleProduct() {
         try {
             setIsLoadingProduct(true)
-            const res = await axios.get<Product>(`/api/products/get-product?id=${id}`)
+            const res = await axios.get<Product>(
+                `/api/products/get-product?id=${id}&adminId=${session?.user._id}`
+            )
             const responseData = res?.data
             if(responseData) {
                 setProductAttribute(responseData)
@@ -59,9 +63,10 @@ export default function UpdateSingleProduct() {
     }
 
     useEffect(() => {
-        if(!id) return
-        fetchSingleProduct();
-    }, [id])
+        if(id && session?.user._id) {
+            fetchSingleProduct();
+        }
+    }, [id, session])
 
     const fetchCategories = () => {
         axios.get<CategoryClass[]>('/api/categories/get')
@@ -167,9 +172,9 @@ export default function UpdateSingleProduct() {
             // }
             // console.log(categoryProperties);
 
-            const res = await axios.put('/api/products/update-product', {
+            const res = await axios.put(`/api/products/update-product`, {
                 id, name, imageArray, description, price, amount, category, subCategory,
-                categoryProperties, discount, sellerName
+                categoryProperties, discount, sellerName, adminId: session?.user._id
             })
             if(res.status === 202 || res.status === 205) {
                 toast.success(`${res.data.message} 😊`, {position: "top-center"});
@@ -192,7 +197,9 @@ export default function UpdateSingleProduct() {
     return (
         <Layout>
             <div className="flex justify-between mb-4">
-                <h1 className="text-3xl font-semibold underline">Update... {productAttribute.name}</h1>
+                <h1 className="text-3xl font-semibold underline">
+                    Update... {productAttribute.name}
+                </h1>
                 <Link 
                     href={'/products'} 
                     className="text-gray-500 border-[1.4px] border-gray-400 text-xl font-semibold px-3 py-2 rounded-md no-underline"

@@ -7,43 +7,72 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
         if(req.method === 'POST') {
             const { 
-                name, description, price, images, amount, category, categoryProperties, discount, sellerName
+                name, 
+                description, 
+                price, 
+                images, 
+                amount, 
+                category, 
+                categoryProperties, 
+                discount, 
+                sellerName, 
+                adminId
             } = req.body
             
             let pro;
             if(category !== '') {
                 if(Object.keys(categoryProperties).length > 0) {
                     pro = await Product.create({
-                        name, images: Array.from(new Set([...images])), 
-                        description, price, amount, category, categoryProperties,
-                        discountPercentage: discount, seller: sellerName
+                        name, 
+                        category, 
+                        description,
+                        images: Array.from(new Set([...images])), 
+                        price, 
+                        amount, 
+                        categoryProperties,
+                        discountPercentage: discount, 
+                        seller: sellerName,
+                        adminId
                     })
                 }
                 else {
                     pro = await Product.create({
-                        name, images: Array.from(new Set([...images])), 
-                        description, price, amount, category, seller: sellerName, discountPercentage: discount
+                        name, 
+                        category, 
+                        description, 
+                        images: Array.from(new Set([...images])), 
+                        price, 
+                        amount, 
+                        discountPercentage: discount,
+                        seller: sellerName, 
+                        adminId
                     })
                 }
             }
             else {
                 pro = await Product.create({
-                    name, images: Array.from(new Set([...images])), 
-                    description, price, amount, discountPercentage: discount, seller: sellerName
+                    name, 
+                    images: Array.from(new Set([...images])), 
+                    description, 
+                    price, 
+                    amount, 
+                    discountPercentage: discount, 
+                    seller: sellerName,
+                    adminId
                 })
+            } 
+            
+            if(pro) {
+                return res.status(201).json({
+                    message: "Product has been created successfully 😊"
+                });
             }
-            const product = await pro.save()        
 
-            return (
-                product 
-                    ?
-                res.status(201).json({message: "Product has been created successfully 😊"})            
-                    :
-                res.status(205).json({message: "something went wrong! 😕"})
-            )
+            return res.status(205).json({message: "something went wrong! 😕"});
         }
     }
-    catch(err: any) {
-        return res.status(500).json({message: err.message})
+    catch(err) {
+        console.error(err);        
+        return res.status(500).json({message: "Creation failed. error code 500."})
     }
 } 

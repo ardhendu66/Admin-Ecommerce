@@ -6,6 +6,7 @@ export interface SubCategoryExtended {
 export interface SubCategoryClass {
     name: string,
     properties: Object,
+    adminId?: string,
 }
 export interface CategoryClass {
     _id: string,

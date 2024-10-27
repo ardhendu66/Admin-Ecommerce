@@ -9,7 +9,7 @@ interface RatingsAndReviewsClass extends Document {
 const ratingReviewSchema: Schema<RatingsAndReviewsClass> = new Schema<RatingsAndReviewsClass>({
     customerId: {
         type: Types.ObjectId,
-        ref: "Customer"
+        ref: "User"
     },
     rating: {
         type: Number,
@@ -37,7 +37,8 @@ interface ProductClass extends Document {
     amount: number,
     subCategory?: string,
     categoryProperties: Object,
-    ratingAndReview?: RatingsAndReviewsClass[]
+    ratingAndReview?: RatingsAndReviewsClass[],
+    adminId?: Types.ObjectId,
 }
 
 const productSchema: Schema<ProductClass> = new Schema<ProductClass>({
@@ -47,7 +48,8 @@ const productSchema: Schema<ProductClass> = new Schema<ProductClass>({
     },
     category: {
         type: Types.ObjectId,
-        ref: "Category"
+        ref: "Category",
+        required: true,
     },
     images: {
         type: Array(String),
@@ -84,7 +86,12 @@ const productSchema: Schema<ProductClass> = new Schema<ProductClass>({
     categoryProperties: {
         type: Object
     },
-    ratingAndReview: Array(ratingReviewSchema)
+    ratingAndReview: Array(ratingReviewSchema),
+    adminId: {
+        type: Types.ObjectId,
+        ref: "Admin",
+        required: true,
+    }
 }, {
     timestamps: true
 })

@@ -6,6 +6,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await ConnectionWithMongoose();
     try {
         if(req.method === 'DELETE' && req.query?.id) {
+            
             const product = await Product.findByIdAndDelete(req.query.id)
             
             return (
@@ -18,6 +19,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
     }
     catch(err: any) {
-        return res.status(500).json({message: "internal server error :("})
+        return res.status(500).json({message: "deletion failed. error code 500"});
     }
 } 

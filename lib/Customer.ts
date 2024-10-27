@@ -37,7 +37,7 @@ const customerSchema: Schema<CustomerClass> = new Schema<CustomerClass>({
                 return `${value} does not contain 10 digits`
             }
         },
-        default: "9083147083"
+        default: "9517890762"
     }
 }, {
     timestamps: true,

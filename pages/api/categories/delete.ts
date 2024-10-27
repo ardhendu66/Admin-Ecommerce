@@ -1,11 +1,12 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import CategoryModel from "@/lib/Categories";
+import CategoryModel from "@/lib/Category";
 import { ConnectionWithMongoose } from "@/lib/mongoose";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     await ConnectionWithMongoose();
-    try {
-        if(req.method === 'DELETE') {
+    
+    if(req.method === 'DELETE') {
+        try {
             const { id, sname } = req.query;
             const category = await CategoryModel.findByIdAndUpdate(id, {
                 $pull: {
@@ -19,9 +20,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }
             return res.status(200).json({message: "not deleted"});
         }
+        catch(err: any) {
+            console.error(err.message)
+            return res.status(500).json({message: err.message})        
+        }
     }
-    catch(err: any) {
-        console.error(err.message)
-        return res.status(500).json({message: err.message})        
-    }
+
+    return res.status(405).json({message: "Method not allowed"})
 }

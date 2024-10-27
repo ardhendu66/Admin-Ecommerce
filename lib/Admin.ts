@@ -78,6 +78,6 @@ export const adminSchema: mongoose.Schema<Admin> = new mongoose.Schema<Admin>({
     }
 })
 
-const UserModel = mongoose.models?.Admin || mongoose.model('Admin', adminSchema);
+const AdminModel = mongoose.models?.Admin || mongoose.model('Admin', adminSchema);
 
-export default UserModel;
+export default AdminModel;

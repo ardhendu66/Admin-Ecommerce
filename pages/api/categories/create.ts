@@ -1,12 +1,14 @@
 import { NextApiRequest, NextApiResponse } from "next"
-import CategoryModel from "@/lib/Categories";
+import CategoryModel from "@/lib/Category";
 import { ConnectionWithMongoose } from "@/lib/mongoose"
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     await ConnectionWithMongoose();
-    try {
-        if(req.method === 'POST') {
-            const { name, subCategory, properties } = req.body;
+
+    if(req.method === 'POST') {
+        try {
+            const { name, subCategory, properties, adminId } = req.body;
+
             const category = await CategoryModel.findOne({name});
 
             if(category) {
@@ -18,7 +20,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         $push: {
                             subCategory: {
                                 name: subCategory,
-                                properties
+                                properties,
+                                adminId
                             }
                         }
                     })
@@ -29,14 +32,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             await CategoryModel.create({
                 name,
                 subCategory: [
-                    { name: subCategory, properties }
+                    { name: subCategory, properties, adminId }
                 ]
             })
             return res.status(201).json({message: "Category created successfully"})
         }
+        catch(err: any) {
+            console.error(err.message)
+            return res.status(500).json({message: err.message})     
+        }
     }
-    catch(err: any) {
-        console.error(err.message)
-        return res.status(500).json({message: err.message})     
-    }
+
+    return res.status(405).json({message: "Method not allowed"}) 
 }

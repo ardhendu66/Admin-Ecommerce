@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { ConnectionWithMongoose } from "@/lib/mongoose";
-import UserModel from "@/lib/User";
+import UserModel from "@/lib/Admin";
 import { sendEmail } from "@/utils/mailer";
 import { envVariables } from "@/config/config";
 

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { toast } from 'react-toastify';
@@ -20,6 +21,7 @@ export default function Create() {
     const [categoryProperties, setCategoryProperties] = useState<Object>({});
     const [properties, setProperties] = useState<Object>({});
     const router = useRouter();
+    const { data: session } = useSession();
 
     const fetchCategories = () => {
         axios.get<CategoryClass[]>('/api/categories/get')
@@ -57,21 +59,20 @@ export default function Create() {
 
     const createNewProduct = async (event: React.MouseEvent<HTMLFormElement>) => {
         event.preventDefault();
-        if(name && description && price && images && amount) {
+        if(name && description && price && images && amount && session?.user._id) {
             try {
                 let imageArray = images.split(",")
                 if(imageArray[imageArray.length - 1] === "") {
                     imageArray.pop()
                 }
-                const res = await axios.post('/api/products/create-product', {
+                const res = await axios.post(`/api/products/create-product`, {
                     name, images: imageArray, description, price, discount, amount, category,
-                    categoryProperties, sellerName
+                    categoryProperties, sellerName, adminId: session.user._id
                 })
                 if(res.status === 201) {
                     toast.success(res.data.message, { position:"top-center" })
-                    router.push('/products')
+                    // router.push('/products')
                 }
-                return;
             }
             catch(err: any) {
                 console.error(err.message)              
@@ -80,7 +81,6 @@ export default function Create() {
         }
         else {
             toast.info('Please fill all the details', { position: "top-center" })
-            return;
         }
     }
 
@@ -139,13 +139,18 @@ export default function Create() {
                     Object.entries(properties).map(([key, values]: any, index) => (
                         <div key={index} className="flex items-center justify-between gap-2">
                             <div className="ml-6 w-1/5"> {key} </div>
-                            <select className="w-4/5"
+                            <select className="w-4/5 text-lg font-bold"
                                 onChange={e => changePropertyValues(
                                     e.target.value, key
                                 )}
                             >
+                                <option value=""> — Select {key} options — </option>
                             {values.map((v: string, ind: number) => (
-                                <option key={ind} value={v}> {v} </option>
+                                <option 
+                                    key={ind} 
+                                    value={v} 
+                                    className={`${ind%2 === 0 ? "bg-gray-200" : "bg-gray-300"} text-lg font-bold`}
+                                > {v} </option>
                             ))}
                             </select>
                         </div>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { useSession } from "next-auth/react"
 import Link from "next/link"
 import { useRouter } from "next/router"
 import axios from "axios"
@@ -12,13 +13,15 @@ import { loaderColor } from "@/config/config"
 const ProductComponent = ({swal}: any) => {
     const [products, setProducts] = useState<Product[]>([])
     const [isLoading, setIsLoading] = useState<boolean>(false)
+    const { data: session } = useSession();
 
     const fetchProducts = async () => {
         try {
             setIsLoading(true)
-            const res = await axios.get<Product[]>('/api/products/get-products')
-            const data = res?.data
-            setProducts(data)
+            const res = await axios.get<Product[]>(
+                `/api/products/get-products?adminId=${session?.user._id}`
+            );
+            setProducts(res?.data)
         }
         catch(err: any) {
             console.log(err);
@@ -26,7 +29,7 @@ const ProductComponent = ({swal}: any) => {
         finally {
             setTimeout(() => {
                 setIsLoading(false)
-            }, 1500)
+            }, 800)
         }
     }
 
@@ -59,8 +62,10 @@ const ProductComponent = ({swal}: any) => {
     }
 
     useEffect(() => {
-        fetchProducts().then(() => {})
-    }, [])
+        if(session?.user._id) {
+            fetchProducts();
+        }
+    }, [session])
 
     return (
         <Layout>

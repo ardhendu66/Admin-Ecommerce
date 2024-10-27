@@ -1,8 +1,9 @@
-import { Schema, model, models, Document } from "mongoose"
+import { Schema, model, models, Document, Types } from "mongoose"
 
 interface SubCategoryClass extends Document {
     name: string,
     properties: Object,
+    adminId?: Types.ObjectId,
 }
 
 const subCategorySchema: Schema<SubCategoryClass> = new Schema<SubCategoryClass>({
@@ -14,6 +15,11 @@ const subCategorySchema: Schema<SubCategoryClass> = new Schema<SubCategoryClass>
     properties: {
         type: Object,
         required: [true, "category-properties is required"]
+    },
+    adminId: {
+        type: Types.ObjectId,
+        ref: "Admin",
+        required: true,
     }
 }, {_id: false})
 

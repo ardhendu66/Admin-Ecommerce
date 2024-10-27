@@ -1,13 +1,11 @@
 import Layout from "@/components/Layout"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
-import Image from "next/image"
 import { ClipLoader } from "react-spinners"
 import { loaderColor } from "@/config/config"
 
 export default function Dashboard() {
     const {data: session, status} = useSession()
-    const sourceOfImage: string = session?.user?.image!
 
     if(status === "loading") {
       return (
@@ -29,13 +27,7 @@ export default function Dashboard() {
             </h2>
             <div className="bg-gray-300 gap-1 text-black flex justify-between rounded-xl overflow-hidden pr-2">
               <span className="w-8 h-8">
-                {/* <Image 
-                  src={sourceOfImage}
-                  alt="error"
-                  fill
-                  objectFit="cover"
-                  className="w-8 h-8 rounded-sm"
-                /> */}
+
               </span>
               <span className="flex items-center justify-center">
                 {session?.user?.name}

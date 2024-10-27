@@ -42,11 +42,15 @@ export default function Layout({children}: ChildProps) {
             {
               showSideBar 
                 ? 
-              <RxCross1 className="w-10 h-10 rounded-full bg-transparent" />  
+              <div className="border-gray-400 border-[1.4px] p-1 mt-2 ml-1 bg-white rounded">
+                <RxCross1 className="w-8 h-8 rounded-full bg-transparent text-gray-500" />  
+              </div>
                 : 
               (
                 <div className="flex w-full bg-bgGray pb-1">
-                  <GiHamburgerMenu className="w-10 h-10 mr-4" />
+                  <div className="border-gray-400 border-[1.4px] px-1 py-0 mt-2 ml-1 bg-white rounded">
+                    <GiHamburgerMenu className="w-10 h-10 text-gray-500" />
+                  </div>
                   <div className="w-full flex justify-center">
                     <Link href={'/dashboard'} className="flex gap-1 text-sky-700 font-medium">
                       <RiAdminFill className="w-10 h-10 text-sky-700"/>

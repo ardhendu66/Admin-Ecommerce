@@ -1,11 +1,12 @@
 import { NextApiRequest, NextApiResponse } from "next"
-import CategoryModel from "@/lib/Categories";
+import CategoryModel from "@/lib/Category";
 import { ConnectionWithMongoose } from "@/lib/mongoose";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     await ConnectionWithMongoose();
-    try {
-        if(req.method === 'GET') {
+
+    if(req.method === 'GET') {
+        try {
             if(req.query.id && req.query.sname) {
                 const { id, sname }: any = req.query;
                 const category = await CategoryModel.findById(id, {
@@ -27,17 +28,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }
 
             const categories = await CategoryModel.find();
-            return (
-                categories
-                    ?
-                res.status(200).json(categories)
-                    :
-                res.status(205).json({message: 'Failed to fetch the Categories 😣'})
-            )
+
+            if(categories) {
+                return res.status(200).json(categories);
+            }
+            
+            return res.status(205).json({message: 'Failed to fetch the Categories 😣'});
+        }
+        catch(err: any) {
+            console.error(err.message)
+            return res.status(500).json({message: err.message})        
         }
     }
-    catch(err: any) {
-        console.error(err.message)
-        return res.status(500).json({message: err.message})        
-    }
+
+    return res.status(405).json({message: "Method not allowed"})
 }

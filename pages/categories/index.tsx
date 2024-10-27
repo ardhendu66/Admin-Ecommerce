@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import axios from "axios";
 import Link from "next/link";
 import Layout from "@/components/Layout";
@@ -10,6 +11,7 @@ import { withSwal } from "react-sweetalert2";
 const CategoryPage = ({swal}: any) => {
     const [categoryList, setCategoryList] = useState<CategoryClass[]>([]);
     const [isLoadingCategories, setisLoadingCategories] = useState(false);
+    const { data: session } = useSession();
 
     const fetchCategories = async () => {
         try {
@@ -29,7 +31,10 @@ const CategoryPage = ({swal}: any) => {
         fetchCategories();
     }, [])
 
-    const deleteSelectedCategory = async (id: string, subCategory: string) => {
+    const deleteSelectedCategory = async (id: string, subCategory: string, adminId: string) => {
+        if(adminId !== session?.user._id) {
+            return;
+        }
         try {
             const response = await swal.fire({
                 title: 'Are you sure ?',
@@ -66,7 +71,7 @@ const CategoryPage = ({swal}: any) => {
                 href={'/categories/create'} 
                 className="bg-blue-800 text-white text-lg font-semibold px-10 py-2 rounded-[4px] mb-4"
             >
-                Create New Category
+                Create a New Sub-category
             </Link>
             <h1 className="text-3xl font-semibold mt-6 mb-2 underline">All Categories</h1>
             {
@@ -106,9 +111,9 @@ const CategoryPage = ({swal}: any) => {
                                                 subCat.name
                                             }
                                             </div>
-                                            <div className="flex flex-col gap-y-2">
+                                            <div className={`flex flex-col gap-y-2 ${session?.user._id !== subCat.adminId && "hidden"}`}>
                                                 <Link 
-                                                    href={`/categories/update/${category._id}?cname=${category.name}&sname=${subCat.name}&id=${category._id}`}
+                                                    href={`/categories/update/${category._id}?cname=${category.name}&sname=${subCat.name}`}
                                                     className="bg-gray-500 text-white py-1 rounded-lg text-center"
                                                 >
                                                     Edit
@@ -118,7 +123,9 @@ const CategoryPage = ({swal}: any) => {
                                                     className="bg-red-600 text-white px-3 py-1 rounded-lg"
                                                     onClick={
                                                         () => deleteSelectedCategory(
-                                                            category._id,subCat.name
+                                                            category._id, 
+                                                            subCat.name, 
+                                                            subCat.adminId as string
                                                         )
                                                     }
                                                 >

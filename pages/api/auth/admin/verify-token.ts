@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import jwt from "jsonwebtoken";
-import UserModel from "@/lib/User";
+import UserModel from "@/lib/Admin";
 import { envVariables } from "@/config/config";
 
 export default async function handler(request: NextApiRequest, res: NextApiResponse) {

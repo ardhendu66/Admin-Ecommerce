@@ -1,17 +1,33 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import Layout from "@/components/Layout";
+import { CategoryClass } from "@/config/CategoryTypes";
 import { toast } from "react-toastify";
 import { ClipLoader } from "react-spinners";
 
 export default function CreateCategory() {
+    const [categoryList, setCategoryList] = useState<CategoryClass[]>([]);
     const [name, setName] = useState("");
     const [subName, setSubName] = useState("");
     const [properties, setProperties] = useState<Object>({});
     const [isLoading, setIsLoading] = useState(false);
-
     const router = useRouter();
+    const { data: session } = useSession();
+
+    useEffect(() => {
+        const fetchCategories = () => {
+            axios.get("/api/categories/get")
+                .then(res => {
+                    setCategoryList(res.data);
+                })
+                .catch((err: AxiosError) => {
+                    console.error(err.toJSON());                    
+                })
+        }
+        fetchCategories();
+    }, [])
 
     const addProperties = () => {
         setProperties(prev => {
@@ -50,15 +66,21 @@ export default function CreateCategory() {
         setIsLoading(true);
         if(name === "" || subName === "" || Object.keys(properties).length === 0) {
             toast.info("Fill all the details", { position: "top-center" });
+            setIsLoading(false);
             return;
         }
         try {
             const propertiesObject: any = {}
             Object.entries(properties).map(([key, value]) => {
-                Object.assign(propertiesObject, {[key]: value.split(",")})
+                Object.assign(propertiesObject, {
+                    [key]: Array.from(new Set(value.split(",")))
+                })
             })
             const res = await axios.post('/api/categories/create', {
-                name, subCategory: subName, properties: propertiesObject
+                name, 
+                subCategory: subName, 
+                properties: propertiesObject, 
+                adminId: session?.user._id
             })
             if(res.status === 202 || 201) {
                 toast.success(res.data.message, { position: "top-center" });
@@ -81,26 +103,39 @@ export default function CreateCategory() {
 
     return (
         <Layout>
-            <h1 className="text-4xl font-semibold text-sky-600">
-                New Category Creation
+            <h1 className="text-4xl font-semibold text-sky-600 underline">
+                NEW CATEGORY CREATION
             </h1>
             <form 
                 className="text-lg font-semibold"
                 onSubmit={(e) => createNewCategory(e)}
             >
-                <div>
-                    <label>Name</label>
-                    <input 
-                        type="text" 
-                        placeholder="Category name"
-                        className=""
+                <div className="flex flex-col">
+                    <label>Category</label>
+                    <select 
                         value={name}
-                        onChange={(e) => setName(e.target.value)}
-                    />
-                    <label>Sub-Category Name</label>
+                        className="text-xl max-w-96 py-2 font-semibold"
+                        onChange={e => setName(e.target.value)}
+                    >
+                        <option value="">
+                            Select a category 
+                        </option>
+                        {
+                            categoryList && categoryList?.map((ele, index) => (
+                                <option 
+                                    key={index}
+                                    value={ele.name} 
+                                    className={`text-start ${index%2 === 0 ? "bg-gray-200" : "bg-gray-300"} font-bold`}
+                                >
+                                    {ele.name}
+                                </option>
+                            ))
+                        }
+                    </select>
+                    <label>Sub Category</label>
                     <input 
                         type="text" 
-                        placeholder="Category name"
+                        placeholder="Enter new sub category"
                         className=""
                         value={subName}
                         onChange={(e) => setSubName(e.target.value)}
@@ -149,21 +184,14 @@ export default function CreateCategory() {
                 </div>
                 <button 
                     type="submit"
-                    className={`bg-blue-800 text-2xl w-full mt-2 py-[10px] rounded-[4px]`}
+                    className={`bg-blue-800 text-2xl w-full mt-2 py-[10px] rounded-[4px] text-white`}
                 >
                 {
-                    isLoading
-                        ?
+                    isLoading ?
                     <span>
                         Creating...
-                        <ClipLoader 
-                            color="white"
-                            size={40}
-                            className="-mb-2 ml-2"
-                        />
-                    </span>
-                        :
-                    "Create New Category"
+                        <ClipLoader color="white" size={40} className="-mb-2 ml-2" />
+                    </span> : "CREATE A NEW SUB-CATEGORY"
                 }
                 </button>
             </form>
