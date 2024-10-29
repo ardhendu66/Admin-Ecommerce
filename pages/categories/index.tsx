@@ -71,7 +71,7 @@ const CategoryPage = ({swal}: any) => {
                 href={'/categories/create'} 
                 className="bg-blue-800 text-white text-lg font-semibold px-10 py-2 rounded-[4px] mb-4"
             >
-                Create a New Sub-category
+                Create a New Sub Category
             </Link>
             <h1 className="text-3xl font-semibold mt-6 mb-2 underline">All Categories</h1>
             {
@@ -82,25 +82,25 @@ const CategoryPage = ({swal}: any) => {
                 </div>
                     :
                 <div className="mt-6">
-                    <div className="grid grid-cols-3 gap-4 max-md:grid-cols-2 max-xsm:grid-cols-1">
+                    <div className="grid grid-cols-3 gap-6 max-md:grid-cols-2 max-xsm:grid-cols-1">
                     {
                         categoryList.length > 0
                             &&
                         categoryList?.map(category => (
                             <div 
                                 key={category._id}
-                                className={`${!category.subCategory.length && "hidden"} col-span-1 border-gray-300 border rounded-md py-3 px-4`}
+                                className={`col-span-1 bg-gray-200 rounded-sm py-3 px-4 shadow-md hover:shadow-lg`}
                             >
                                 <div className="px-2 text-3xl font-bold mb-4 rounded-sm tracking-wide uppercase text-center font-mono text-gray-500">
                                     {category.name}
                                 </div>
-                                <div className="mb-3">
+                                <div className="flex flex-col mb-5 gap-y-8">
                                 {
                                     category.subCategory.length > 0
                                         &&
                                     category.subCategory?.map((subCat, index) => (
                                         <div key={index}
-                                            className="flex items-center justify-between text-lg text-gray-500 font-semibold border border-gray-300 px-4 py-2 my-2 rounded-md"
+                                            className="flex items-center justify-between text-lg text-gray-500 bg-white font-semibold px-4 py-2 rounded-md"
                                         >
                                             <div>
                                             {

@@ -25,7 +25,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                             }
                         }
                     })
-                    return res.status(202).json({message: "Sub-Category updated successfully"})
+                    return res.status(202).json({message: "Sub-Category created successfully"})
                 }
             }
             

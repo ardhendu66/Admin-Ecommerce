@@ -1,11 +1,10 @@
-import axios from "axios"
-import { useRouter } from "next/router"
-import Image from "next/image"
-import { ClipLoader, ClockLoader } from "react-spinners"
-import { toast } from "react-toastify"
-import { SetStateAction } from "react"
-import { envVariables } from "@/config/config"
+import axios from "axios";
+import Image from "next/image";
+import { ClipLoader, ClockLoader } from "react-spinners";
+import { toast } from "react-toastify";
+import { SetStateAction } from "react";
 interface Props {
+    name: string,
     brandName: string,
     previewUrl: Set<string>,
     isUploading: boolean,
@@ -16,10 +15,9 @@ interface Props {
 }
 
 export default function CreateForm({ 
-    brandName, previewUrl, isUploading, file, setFile, setIsUploading, setPreviewUrl,
+    name, brandName, previewUrl, isUploading, file, setFile, setIsUploading, setPreviewUrl,
 }: Props) 
 {
-    const router = useRouter()
 
     const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if(e.target.files === null) return
@@ -47,13 +45,10 @@ export default function CreateForm({
                 if(resp.data) {
                     try {
                         const res = await axios.post('/api/upload/create', {
-                            name: "smartphones", brand: brandName, image: resp.data.url
+                            name, brand: brandName, image: resp.data.url
                         })
                         if(res.status === 201 || res.status === 200) {
                             toast.success(res.data.message, { position: "top-center" });
-                            setTimeout(() => {
-                                router.reload();
-                            }, 1500)
                         }
                         else toast.info(res.data.message, { position: "top-center" });
                         // console.log(resp.data);

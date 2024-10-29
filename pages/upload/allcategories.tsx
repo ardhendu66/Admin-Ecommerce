@@ -7,6 +7,7 @@ import CreateForm from "@/components/UploadForm/CreateForm"
 import UpdateForm from "@/components/UploadForm/UpdateForm"
 import { IoIosArrowDropup } from "react-icons/io"
 import { IoIosArrowDropdown } from "react-icons/io"
+import { useRouter } from "next/router"
 
 export default function Smartphones() {
     const [product, setProduct] = useState<Object>({})
@@ -16,30 +17,34 @@ export default function Smartphones() {
     const [previewUrl, setPreviewUrl] = useState<Set<string>>(new Set<string>())
     const [isUploading, setIsUploading] = useState<boolean>(false)
     const [isNewBrandCreation, setIsNewBrandCreation] = useState<boolean>(false)
-    const [showBrandImages, setShowBrandImages] = useState({
-        index: -1, open: false
-    })
+    const [showBrandImages, setShowBrandImages] = useState({ index: -1, open: false })
+    const router = useRouter();
+    const { item } = router.query;
 
     useEffect(() => {
-        fetchAllBrands()
-    }, [])
+        if(item) {
+            fetchAllBrands()
+        }
+    }, [item])
 
     const fetchAllBrands = () => {
-        axios.get<Object>(`/api/upload/get?name=smartphones`)
+        axios.get<Object>(`/api/upload/get?name=${item}`)
         .then(res => {
             setSingleProduct({})              
             setProduct(res.data)
         })
-        .catch(err => {
-            console.error(err.message)
+        .catch((err: AxiosError) => {
+            console.error(err.response);
         })
     }
 
     const deleteImagesOnClick = async (image: string, index: number, brand: string) => {       
         try {
-            const res = await axios.delete(
-                `/api/upload/delete?name=smartphones&brand=${brand}&image=${image}index=${index}`
-            )
+            const res = await axios.delete('/api/upload/delete', {
+                data: {
+                    name: item as string, brand, image, index
+                }
+            })
             if(res.status === 202) {
                 toast.success(`${res.data.message} 😊`, {position: "top-center"})
                 fetchAllBrands()
@@ -53,12 +58,12 @@ export default function Smartphones() {
 
     const getProductsOnBrandFilter = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault()
-        axios.get(`/api/upload/get?name=smartphones&brand=${brandName}`)
+        axios.get(`/api/upload/get?name=${item}&brand=${brandName}`)
         .then(res => {
             setSingleProduct(res.data)
         })
-        .catch((err: AxiosError) => {
-            console.error(err.response);
+        .catch(err => {
+            console.error(err.message)
         })
     }
 
@@ -75,7 +80,7 @@ export default function Smartphones() {
                     onChange={(e) => setBrandName(e.target.value)}
                 />
                 <CreateForm 
-                    name="smartphones"
+                    name={item as string}
                     brandName={brandName} 
                     previewUrl={previewUrl} 
                     isUploading={isUploading}
@@ -111,7 +116,7 @@ export default function Smartphones() {
                 >Fetch brands</button>
 
                 <UpdateForm 
-                    name="smartphones"
+                    name={item as string}
                     brandName={brandName} 
                     previewUrl={previewUrl} 
                     isUploading={isUploading}
