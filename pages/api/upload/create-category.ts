@@ -2,19 +2,23 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import Upload from "@/lib/Upload";
 import { ConnectionWithMongoose } from "@/lib/mongoose";
 
+const defaultImage = "https://res.cloudinary.com/next-ecom-cloud/image/upload/v1722359725/profile_gspnec.jpg";
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     await ConnectionWithMongoose();
 
     if (req.method === "POST") {
 
         try {
-            const { name, brand } = req.query;         
+            const { name, brand, adminId } = req.query;         
 
             const uploadedData = await Upload.create({
                 name,
-                brand: {
-                    [`${brand}`]: []
-                }
+                brand: [{
+                    name: brand,
+                    images: [defaultImage]
+                }],
+                adminId
             });
 
 

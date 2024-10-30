@@ -1,44 +1,52 @@
-import { NextApiRequest, NextApiResponse } from "next"
-import Upload from "@/lib/Upload"
-import { ConnectionWithMongoose } from "@/lib/mongoose"
-
-ConnectionWithMongoose()
+import { NextApiRequest, NextApiResponse } from "next";
+import Upload from "@/lib/Upload";
+import { ConnectionWithMongoose } from "@/lib/mongoose";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    try {
-        if(req.method === 'GET' && req.query.name) {
-            if(req.query.brand) {
-                const { name, brand } = req.query
-                const product = await Upload.findOne({name})
+    await ConnectionWithMongoose();
 
-                let ArrayOfSelectedBrand = []
-                for(const key in product.brand) {
-                    if(key === brand) {
-                        ArrayOfSelectedBrand = product.brand[key]
+    if(req.method === 'GET') {
+
+        try {
+            if(req.query.brand) {
+                const { name, brand } = req.query;
+
+                const data = await Upload.findOne({name}, {
+                    _id: 1,
+                    name: 1,
+                    adminId: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    brand: {
+                        $elemMatch: {
+                            name: brand
+                        }
                     }
+                })
+
+                if(data) {
+                    return res.status(200).json(data);
                 }
 
-                return ArrayOfSelectedBrand.length > 0 && brand !== ''
-                ? 
-                res.status(200).json({
-                    [String(brand)]: ArrayOfSelectedBrand
-                })
-                : 
-                res.status(403).json({message: 'Failed to fetch products 😣'})
+                return res.status(404).json({message: "Item not found. error code 404."});
             }
             else {
-                const { name } = req.query
-                const product = await Upload.findOne({name})
+                const { name }= req.query;
 
-                return product 
-                ? 
-                res.status(200).json(product.brand)
-                : 
-                res.status(403).json({ message: 'Failed to fetch products 😣'})
+                const data = await Upload.findOne({name});
+
+                if(data) {
+                    return res.status(200).json(data);
+                }
+
+                return res.status(404).json({message: "Item not found. error code 404."});
             }
         }
+        catch(err) {
+            console.error(err);            
+            return res.status(500).json({message: "Item found error, error code 500."});
+        }
     }
-    catch(err: any) {
-        return res.status(500).json({message: err.message})
-    }
+
+    return res.status(405).json({message: "Method not allowed!"});
 }

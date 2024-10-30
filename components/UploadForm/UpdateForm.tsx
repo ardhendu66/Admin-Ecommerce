@@ -44,25 +44,30 @@ export default function UpdateForm({
                         'Content-Type': 'multipart/form-data',
                     },
                 })
+                // console.log(resp.data);
                 if(resp.data) {
                     try {
                         const res = await axios.put('/api/upload/update', {
                             name, brand: brandName, image: resp.data.url,
                         })
-                        if(res.status === 202)
-                            toast.success(res.data.message, { position: "top-center" });
-                        else toast.info(res.data.message, { position: "top-center" });
-                        // console.log(resp.data);
+                        if(res.status === 202) {
+                            toast.success(
+                                "Image uploaded successfully", { position: "top-center" }
+                            );
+                        }
+                        else {
+                            toast.info(res.data.message, { position: "top-center" });
+                        }
                     }
-                    catch(e: any) {
+                    catch(err) {
                         toast.error("Brand not updated", { position: "top-center" });
-                        console.error(e.message);
+                        console.error(err);
                     }
                 }
             }
-            catch(e: any) {
+            catch(err) {
                 toast.error("Image not uploaded to cloud", { position: "top-center" });
-                console.error(e.message);
+                console.error(err);
             }
             finally {
                 setIsUploading(false);

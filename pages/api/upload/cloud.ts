@@ -10,6 +10,7 @@ export const config = {
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+    
     if (req.method !== "POST") {
         res.setHeader("Allow", ["POST"]);
         return res.status(405).end(`Method ${req.method} Not Allowed`);
@@ -19,17 +20,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         console.log("Parsing form...");
         const { files } = await parseForm(req) as FormidableParseResult;
         const image = files.upload_image as formidable.File[];
+        
         if (!image) {
-            console.log("Invalid file receives from frontend");      
+            console.log("Invalid file received from frontend");      
             return res.status(403).json({ message: "No file uploaded" });
         }
+
         console.log("Uploading to Cloudinary...");
         const data: any = await cloudUpload(image);
-        // console.log("Upload complete", data);
+        console.log("Upload complete");
+
         return res.status(201).json({
-            url: data.secure_url, message: "Image uploaded successfully 🙂"
+            url: data.secure_url,
+            message: "Image uploaded successfully 🙂"
         });
-    } catch (err: any) {
+    } 
+    catch(err: any) {
         console.error('Error uploading file:', err);
         return res.status(500).json({ message: err.message });
     }

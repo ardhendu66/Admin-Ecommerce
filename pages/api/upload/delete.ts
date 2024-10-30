@@ -6,12 +6,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await ConnectionWithMongoose();
     try {
         if(req.method === 'DELETE') {
-            const { brand, name, image, index } = req.body;
+            const { brand, name, image } = req.body;
             console.log("request_body : ", req.body);
 
-            const deletedImage = await Upload.findOneAndUpdate({name}, {
+            const deletedImage = await Upload.findOneAndUpdate({name, "brand.name": brand}, {
                 $pull: {
-                    [`brand.${brand}`]: image
+                    "brand.$.images": image
                 }
             })
 

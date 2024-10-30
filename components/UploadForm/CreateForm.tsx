@@ -1,8 +1,11 @@
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
 import axios from "axios";
 import Image from "next/image";
 import { ClipLoader, ClockLoader } from "react-spinners";
 import { toast } from "react-toastify";
 import { SetStateAction } from "react";
+
 interface Props {
     name: string,
     brandName: string,
@@ -18,6 +21,7 @@ export default function CreateForm({
     name, brandName, previewUrl, isUploading, file, setFile, setIsUploading, setPreviewUrl,
 }: Props) 
 {
+    const router = useRouter();
 
     const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if(e.target.files === null) return
@@ -31,6 +35,7 @@ export default function CreateForm({
     } 
 
     const UploadImageForFreshBrand = async (e: React.MouseEvent<HTMLFormElement>) => {
+
         e.preventDefault() 
         if(typeof file !== 'undefined') {
             setIsUploading(true)
@@ -42,16 +47,21 @@ export default function CreateForm({
                         'Content-Type': 'multipart/form-data',
                     },
                 })
+                // console.log(resp.data);
                 if(resp.data) {
                     try {
                         const res = await axios.post('/api/upload/create', {
                             name, brand: brandName, image: resp.data.url
                         })
                         if(res.status === 201 || res.status === 200) {
-                            toast.success(res.data.message, { position: "top-center" });
+                            toast.success(
+                                "Image uploaded successfully", { position: "top-center" }
+                            );
+                            router.push(`/upload/allcategories?item=${name}`);
                         }
-                        else toast.info(res.data.message, { position: "top-center" });
-                        // console.log(resp.data);
+                        else {
+                            toast.info(res.data.message, { position: "top-center" });
+                        }
                     }
                     catch(e: any) {
                         toast.error("Brand not created", { position: "top-center" });
@@ -111,7 +121,8 @@ export default function CreateForm({
                     </div>
                 </div>
             </div>
-            <button type="submit"
+            <button 
+                type="submit"
                 className={`border bg-gray-300 text-gray-800 rounded-md shadow-lg cursor-pointer px-4 py-2 mb-3 w-full sm:w-[300px]`}
                 disabled={isUploading}
             >
