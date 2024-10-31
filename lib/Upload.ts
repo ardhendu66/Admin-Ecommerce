@@ -3,7 +3,8 @@ import { Schema, model, models, Document, Types } from "mongoose";
 
 interface Brand extends Document {
     name: string,
-    images: string[]
+    images: string[],
+    adminId?: Types.ObjectId,
 }
 
 const brandSchema: Schema<Brand> = new Schema<Brand>({
@@ -12,7 +13,12 @@ const brandSchema: Schema<Brand> = new Schema<Brand>({
         required: true,
         unique: true,
     },
-    images: [String]
+    images: [String],
+    adminId: {
+        type: Types.ObjectId,
+        ref: "Admin",
+        required: true,
+    }
 }, {
     _id: true,
     timestamps: true,
@@ -21,7 +27,6 @@ const brandSchema: Schema<Brand> = new Schema<Brand>({
 interface Upload extends Document {
     name: string,
     brand: Brand[],
-    adminId?: Types.ObjectId,
 }
 
 const uploadSchema: Schema<Upload> = new Schema<Upload>({
@@ -32,11 +37,6 @@ const uploadSchema: Schema<Upload> = new Schema<Upload>({
     },
     brand: {
         type: Array(brandSchema),
-    },
-    adminId: {
-        type: Types.ObjectId,
-        ref: "Admin",
-        required: true,
     }
 }, {
     timestamps: true,

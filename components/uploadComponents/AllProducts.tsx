@@ -4,6 +4,7 @@ import { Dispatch, SetStateAction } from "react";
 import { toast } from "react-toastify";
 import { IoIosArrowDropup } from "react-icons/io";
 import { IoIosArrowDropdown } from "react-icons/io";
+import { useSession } from "next-auth/react";
 
 interface typeOfBrandImages {
     index: number;
@@ -25,6 +26,8 @@ export default function AllProducts({
     fetchAllBrands,
     setShowBrandImages,
 }: Props) {
+    const { data: session } = useSession();
+
     const deleteImagesOnClick = async (image: string, brand: string) => {
         try {
             const res = await axios.delete("/api/upload/delete", {
@@ -38,7 +41,8 @@ export default function AllProducts({
                 toast.success(`${res.data.message} 😊`, { position: "top-center" });
                 fetchAllBrands();
             } else toast(`${res.data.message} 😕`, { position: "top-center" });
-        } catch (err: any) {
+        } 
+        catch (err: any) {
             toast.error(err.message, { position: "top-center" });
         }
     };
@@ -51,8 +55,7 @@ export default function AllProducts({
                     return (
                         <div
                             key={index}
-                            className={`my-10 border-[1.4px] rounded p-3 ${p.images.length ? "border-gray-300" : "border-none"
-                                }`}
+                            className={`my-10 border-[1.4px] rounded p-3 ${p.images.length ? "border-gray-300" : "border-none"}`}
                         >
                             {p.images.length > 0 && (
                                 <div
@@ -69,18 +72,14 @@ export default function AllProducts({
                                         <div>Brand</div>
                                     </div>
                                     <div className="bg-gray-400 h-[1px] w-full mx-4"></div>
-                                    {showBrandImages.index === index && showBrandImages.open ? (
-                                        <IoIosArrowDropup className="w-6 h-6" />
-                                    ) : (
-                                        <IoIosArrowDropdown className="w-6 h-6" />
-                                    )}
+                                    {showBrandImages.index === index && showBrandImages.open 
+                                        ? <IoIosArrowDropup className="w-6 h-6" />
+                                        : <IoIosArrowDropdown className="w-6 h-6" />
+                                    }
                                 </div>
                             )}
                             <div
-                                className={`grid lg:grid-cols-4 md:grid-cols-3 xsm:grid-cols-2 max-xsm:grid-cols-1 gap-2 py-1 ${showBrandImages.index === index && showBrandImages.open
-                                        ? "mt-3"
-                                        : "hidden"
-                                    }`}
+                                className={`grid lg:grid-cols-4 md:grid-cols-3 xsm:grid-cols-2 max-xsm:grid-cols-1 gap-2 py-1 ${showBrandImages.index === index && showBrandImages.open ? "mt-3" : "hidden"}`}
                             >
                                 {p.images.map((img: string, ind: number) => (
                                     <div className="col-span-1" key={ind}>
@@ -94,14 +93,14 @@ export default function AllProducts({
                                         <div className="flex justify-between gap-1 mt-1 mb-2">
                                             <button
                                                 type="button"
-                                                className="w-1/2 bg-red-600 text-white py-1"
+                                                className={`w-full bg-red-600 text-white py-1 ${session?.user._id !== p.adminId && "hidden"}`}
                                                 onClick={() => deleteImagesOnClick(img, p.name)}
                                             >
                                                 Delete
                                             </button>
                                             <button
                                                 type="button"
-                                                className="w-1/2 bg-gray-700 text-white py-1"
+                                                className="w-full bg-gray-700 text-white py-1"
                                                 onClick={() => {
                                                     window.navigator.clipboard.writeText(img);
                                                     toast.success(
@@ -110,8 +109,7 @@ export default function AllProducts({
                                                     );
                                                 }}
                                             >
-                                                {" "}
-                                                Copy-Link{" "}
+                                                Copy Link
                                             </button>
                                         </div>
                                     </div>

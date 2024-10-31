@@ -1,6 +1,6 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import Image from "next/image";
 import { ClipLoader, ClockLoader } from "react-spinners";
 import { toast } from "react-toastify";
@@ -22,6 +22,7 @@ export default function CreateForm({
 }: Props) 
 {
     const router = useRouter();
+    const { data: session } = useSession();
 
     const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if(e.target.files === null) return
@@ -34,25 +35,30 @@ export default function CreateForm({
         })
     } 
 
-    const UploadImageForFreshBrand = async (e: React.MouseEvent<HTMLFormElement>) => {
+    const UploadImageForFreshBrand = (e: React.MouseEvent<HTMLFormElement>) => {
+        e.preventDefault();
 
-        e.preventDefault() 
-        if(typeof file !== 'undefined') {
-            setIsUploading(true)
-            const formData = new FormData()
-            formData.append('upload_image', file);
-            try {
-                const resp = await axios.post('/api/upload/cloud', formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                })
+        if(typeof file === 'undefined') {
+            return;
+        }
+        
+        setIsUploading(true);
+
+        const formData = new FormData();
+        formData.append('upload_image', file);
+        
+        axios.post('/api/upload/cloud', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        })
+            .then(resp => {
                 // console.log(resp.data);
-                if(resp.data) {
-                    try {
-                        const res = await axios.post('/api/upload/create', {
-                            name, brand: brandName, image: resp.data.url
-                        })
+                axios.post('/api/upload/create', {
+                    name, brand: brandName, image: resp.data.url, 
+                    adminId: session?.user._id
+                })
+                    .then(res => {
                         if(res.status === 201 || res.status === 200) {
                             toast.success(
                                 "Image uploaded successfully", { position: "top-center" }
@@ -62,22 +68,25 @@ export default function CreateForm({
                         else {
                             toast.info(res.data.message, { position: "top-center" });
                         }
-                    }
-                    catch(e: any) {
+                    })
+                    .catch((err: AxiosError) => {
                         toast.error("Brand not created", { position: "top-center" });
-                        console.error(e.message);
-                    }
-                }
-            }
-            catch(e: any) {
-                toast.error(e.message, { position: "top-center" });
-                console.error(e.message);
-            }
-            finally {
-                setIsUploading(false);
-            }
-        }
+                        console.error({
+                            response: err.response, message: err.message
+                        });
+                    })
+            })
+            .catch((err: AxiosError) => {
+                console.error({
+                    response: err.response, message: err.message
+                });        
+                toast.error(
+                    err.response?.data as string, { position: "top-center" }
+                );            
+            })
+            .finally(() => setIsUploading(false));            
     }
+    
 
     return (
         <form onSubmit={(e: React.MouseEvent<HTMLFormElement>) => UploadImageForFreshBrand(e)}>

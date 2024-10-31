@@ -16,9 +16,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 name,
                 brand: [{
                     name: brand,
-                    images: [defaultImage]
+                    images: [defaultImage],
+                    adminId
                 }],
-                adminId
             });
 
 

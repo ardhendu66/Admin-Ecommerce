@@ -7,8 +7,8 @@ export interface UploadItemType {
         images: string[],
         createdAt: Date,
         updatedAt: Date,
+        adminId: string,
     }],
-    adminId: string,
     createdAt: Date,
     updatedAt: Date
 }

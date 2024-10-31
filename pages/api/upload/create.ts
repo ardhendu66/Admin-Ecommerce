@@ -7,14 +7,17 @@ interface Body {
     name: string,
     brand: string,
     image: string,
+    adminId: string,
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     await ConnectionWithMongoose();
-    try {
-        if(req.method === "POST") {
-            const { name, brand, image }: Body = req.body;
-            const imageValue = image !== undefined || image !== null || image !== "" ? image : "https://res.cloudinary.com/next-ecom-cloud/image/upload/v1722359725/profile_gspnec.jpg";
+
+    if(req.method === "POST") {
+        try {
+            const { name, brand, image, adminId }: Body = req.body;
+
+            const imageValue = ( image !== undefined || image !== null || image !== "" ) ? image : "https://res.cloudinary.com/next-ecom-cloud/image/upload/v1722359725/profile_gspnec.jpg";
 
             let product = await Upload.findOne({name});
 
@@ -29,7 +32,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     $push: {
                         brand: {
                             name: brand,
-                            images: [imageValue]
+                            images: [imageValue],
+                            adminId
                         }
                     }
                 })
@@ -46,8 +50,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
             return res.status(400).json({message: "Product not found"});
         }
+        catch(err: any) {
+            return res.status(500).json({message: err.message})
+        }
     }
-    catch(err: any) {
-        return res.status(500).json({message: err.message})
-    }
+
+    return res.status(405).json("Method not allowed");
 } 

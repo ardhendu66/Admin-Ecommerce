@@ -9,12 +9,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         try {
             if(req.query.brand) {
+                
                 const { name, brand } = req.query;
 
                 const data = await Upload.findOne({name}, {
                     _id: 1,
                     name: 1,
-                    adminId: 1,
                     createdAt: 1,
                     updatedAt: 1,
                     brand: {

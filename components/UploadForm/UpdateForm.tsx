@@ -1,8 +1,10 @@
-import axios from "axios"
+import axios, { AxiosError } from "axios"
 import Image from "next/image"
 import { ClockLoader, ClipLoader } from "react-spinners"
 import { toast } from "react-toastify"
-import { SetStateAction } from "react"
+import { SetStateAction, useState } from "react"
+import { UploadItemType } from "@/config/UploadTypes"
+import { useSession } from "next-auth/react"
 
 interface Props {
     name: string,
@@ -14,65 +16,79 @@ interface Props {
     setIsUploading: (v: SetStateAction<boolean>) => void,
     setPreviewUrl: (v: SetStateAction<Set<string>>) => void,
     fetchAllBrands: () => void,
+    product: UploadItemType | null,
 }
 
 export default function UpdateForm({ 
-    name, brandName, previewUrl, isUploading, file, setFile, setIsUploading, setPreviewUrl, fetchAllBrands
+    name, brandName, previewUrl, isUploading, file, setFile, setIsUploading, setPreviewUrl, fetchAllBrands, product
 }: Props) 
 {
+    const [canUpload, setCanUpload] = useState(true);
+    const { data: session } = useSession();
 
     const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if(e.target.files === null) return
-        setFile(e.target.files[0])
+        if(e.target.files === null) {
+            return;
+        }
+        setFile(e.target.files[0]);
         setPreviewUrl(prev => {
             if(e.target.files) {
                 prev.add(URL.createObjectURL(e.target.files[0]))
             }
-            return prev
+            return prev;
         })
     }
 
     const UploadImage = async (e: React.MouseEvent<HTMLFormElement>) => {
-        e.preventDefault() 
-        if(typeof file !== 'undefined') {
-            setIsUploading(true)
-            const formData = new FormData();
-            formData.append('upload_image', file); 
-            try {
-                const resp = await axios.post('/api/upload/cloud', formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
+        e.preventDefault();
+
+        if(typeof file === 'undefined') {
+            return;
+        }
+
+        const filteredBrand = product?.brand.find(br => br.name === brandName);
+        if(filteredBrand && filteredBrand.adminId !== session?.user._id) {
+            setCanUpload(false);
+            return;
+        }
+        
+        setIsUploading(true);
+
+        const formData = new FormData();
+        formData.append('upload_image', file); 
+
+        axios.post('/api/upload/cloud', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        })
+            .then(resp => {
+                axios.put('/api/upload/update', {
+                    name, brand: brandName, image: resp.data.url,
                 })
-                // console.log(resp.data);
-                if(resp.data) {
-                    try {
-                        const res = await axios.put('/api/upload/update', {
-                            name, brand: brandName, image: resp.data.url,
-                        })
-                        if(res.status === 202) {
-                            toast.success(
-                                "Image uploaded successfully", { position: "top-center" }
-                            );
-                        }
-                        else {
-                            toast.info(res.data.message, { position: "top-center" });
-                        }
+                .then(res => {
+                    if(res.status === 202) {
+                        toast.success(
+                            "Image uploaded successfully", { position: "top-center" }
+                        );
                     }
-                    catch(err) {
-                        toast.error("Brand not updated", { position: "top-center" });
-                        console.error(err);
+                    else {
+                        toast.info(res.data.message, { position: "top-center" });
                     }
-                }
-            }
-            catch(err) {
+                })
+                .catch((err: AxiosError) => {
+                    toast.error("Brand not updated", { position: "top-center" });
+                    console.error(err);
+                })
+            })
+            .catch((err: AxiosError) => {
                 toast.error("Image not uploaded to cloud", { position: "top-center" });
                 console.error(err);
-            }
-            finally {
+            })
+            .finally(() => {
                 setIsUploading(false);
-            }
-        }
+                fetchAllBrands();
+            });
     }
 
     return (
@@ -118,7 +134,9 @@ export default function UpdateForm({
                     </div>
                 </div>
             </div>
-
+            <p className={`w-60 text-sm ${canUpload && "hidden"} bg-red-600 text-white pl-3 p-2 rounded-sm shadow-md mt-2 mb-5`}>
+                ⓘ{"  "}You're not authorized to upload image for brand <strong>{brandName}</strong>
+            </p>
             <button type="submit"
                 className={`border bg-gray-300 text-gray-800 rounded-md shadow-lg cursor-pointer p-3 mb-3 w-full sm:w-[300px]`}
                 disabled={isUploading}

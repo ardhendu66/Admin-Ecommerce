@@ -8,11 +8,12 @@ import { useRouter } from "next/router";
 import { UploadItemType } from "@/config/UploadTypes";
 import AllProducts from "@/components/uploadComponents/AllProducts";
 import SingleProduct from "@/components/uploadComponents/SingleProduct";
+import { toast } from "react-toastify";
 
 export default function Smartphones() {
     const [product, setProduct] = useState<UploadItemType | null>(null);
     const [singleProduct, setSingleProduct] = useState<UploadItemType | null>(null);
-    const [brandName, setBrandName] = useState("");
+    const [brandName, setBrandName] = useState<string>("");
     const [file, setFile] = useState<File | undefined>();
     const [previewUrl, setPreviewUrl] = useState<Set<string>>(new Set<string>());
     const [isUploading, setIsUploading] = useState<boolean>(false);
@@ -39,17 +40,21 @@ export default function Smartphones() {
             });
     };
 
-    const getProductsOnBrandFilter = (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault();
+    const fetchSingleBrand = () => {
+        if(brandName === "") {
+            toast("Please select one category", {position: "top-center"});
+            return;
+        }
+
         axios
             .get(`/api/upload/get?name=${item}&brand=${brandName}`)
             .then((res) => {
                 setSingleProduct(res.data);
             })
-            .catch((err) => {
-                console.error(err.message);
+            .catch((err: AxiosError) => {
+                console.error(err.response);
             });
-    };
+    }
 
     return (
         <Layout>
@@ -63,7 +68,7 @@ export default function Smartphones() {
                     />
                     <CreateForm
                         name={item as string}
-                        brandName={brandName}
+                        brandName={brandName as string}
                         previewUrl={previewUrl}
                         isUploading={isUploading}
                         file={file}
@@ -79,27 +84,25 @@ export default function Smartphones() {
                         className="bg-sky-700 py-3 mb-6 text-xl rounded-md min-w-full"
                         onClick={() => setIsNewBrandCreation(true)}
                     >
-                        {" "}
-                        Create a new Brand{" "}
+                        Create a new Brand
                     </button>
 
                     <select
-                        value={brandName}
+                        value={brandName as string}
                         className="mb-6"
                         onChange={(e) => setBrandName(e.target.value)}
                     >
-                        <option value="">Select Brand</option>
+                        <option value="" className="ml-2">Select Brand</option>
                         {product?.brand.map(p => (
-                            <option value={p.name} key={p._id}>
-                                {" "}
-                                {p.name}{" "}
+                            <option value={p.name} key={p._id} className="ml-2">
+                                {p.name}
                             </option>
                         ))}
                     </select>
 
                     <button
                         type="button"
-                        onClick={getProductsOnBrandFilter}
+                        onClick={() => fetchSingleBrand()}
                         className="bg-sky-700 py-3 mb-6 text-xl rounded-md min-w-full"
                     >
                         Fetch brands
@@ -115,6 +118,7 @@ export default function Smartphones() {
                         setIsUploading={setIsUploading}
                         setPreviewUrl={setPreviewUrl}
                         fetchAllBrands={fetchAllBrands}
+                        product={product}
                     />
 
                     <div className="mb-5 border-b"></div>
@@ -122,7 +126,7 @@ export default function Smartphones() {
                         <SingleProduct 
                             item={item as string}
                             singleProduct={singleProduct}
-                            fetchAllBrands={fetchAllBrands}
+                            fetchAllBrands={fetchSingleBrand}
                         /> :
                         <AllProducts
                             item={item as string}

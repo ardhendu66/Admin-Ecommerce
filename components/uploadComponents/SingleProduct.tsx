@@ -1,3 +1,4 @@
+import { useSession } from "next-auth/react";
 import axios from "axios";
 import { UploadItemType } from "@/config/UploadTypes";
 import { toast } from "react-toastify";
@@ -13,6 +14,8 @@ export default function SingleProduct({
     singleProduct,
     fetchAllBrands,
 }: Props) {
+    const { data: session } = useSession();
+    
     const deleteImagesOnClick = async (image: string, brand: string) => {
         try {
             const res = await axios.delete("/api/upload/delete", {
@@ -55,14 +58,14 @@ export default function SingleProduct({
                                 <div className="flex justify-between gap-1 mt-1 mb-2">
                                     <button
                                         type="button"
-                                        className="w-1/2 bg-red-600 text-white py-1"
+                                        className={`w-full bg-red-600 text-white py-1 ${session?.user._id !== singleProduct.brand[0].adminId && "hidden"}`}
                                         onClick={() => deleteImagesOnClick(img, p.name)}
                                     >
                                         Delete
                                     </button>
                                     <button
                                         type="button"
-                                        className="w-1/2 bg-gray-700 text-white py-1"
+                                        className="w-full bg-gray-700 text-white py-1"
                                         onClick={() => {
                                             window.navigator.clipboard.writeText(img);
                                             toast.success("Copied to clipboard", {
@@ -70,8 +73,7 @@ export default function SingleProduct({
                                             });
                                         }}
                                     >
-                                        {" "}
-                                        Copy-Link{" "}
+                                        Copy Link
                                     </button>
                                 </div>
                             </div>
