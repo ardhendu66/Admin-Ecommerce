@@ -35,7 +35,7 @@ interface ProductClass extends Document {
     discountPercentage: number,
     seller: string,
     amount: number,
-    subCategory?: string,
+    subCategory: string,
     categoryProperties: Object,
     ratingAndReview?: RatingsAndReviewsClass[],
     adminId?: Types.ObjectId,
@@ -50,6 +50,13 @@ const productSchema: Schema<ProductClass> = new Schema<ProductClass>({
         type: Types.ObjectId,
         ref: "Category",
         required: true,
+    },
+    subCategory: {
+        type: String,
+        required: true,
+    },
+    categoryProperties: {
+        type: Object
     },
     images: {
         type: Array(String),
@@ -79,12 +86,6 @@ const productSchema: Schema<ProductClass> = new Schema<ProductClass>({
         type: Number,
         required: [true, "Amount is required"],
         min: [0, "Amount cannot be negetive"]
-    },
-    subCategory: {
-        type: String,
-    },
-    categoryProperties: {
-        type: Object
     },
     ratingAndReview: Array(ratingReviewSchema),
     adminId: {

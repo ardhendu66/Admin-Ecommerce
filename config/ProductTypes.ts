@@ -10,7 +10,7 @@ export interface Product {
     amount: number,
     __v: number,
     category: CategoryClass,
-    subCategory?: string,
+    subCategory: string,
     categoryProperties: Object,
     createdAt: Date,
     updatedAt: Date,

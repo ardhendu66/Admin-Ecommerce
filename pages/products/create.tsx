@@ -67,7 +67,7 @@ export default function Create() {
                 }
                 const res = await axios.post(`/api/products/create-product`, {
                     name, images: imageArray, description, price, discount, amount, category,
-                    categoryProperties, sellerName, adminId: session.user._id
+                    subCategory, categoryProperties, sellerName, adminId: session.user._id
                 })
                 if(res.status === 201) {
                     toast.success(res.data.message, { position:"top-center" })
