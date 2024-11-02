@@ -20,6 +20,7 @@ export const defaultProductAttributes: Product = {
         updatedAt: new Date(),
         __v: 0
     },
+    subCategory: '',
     categoryProperties: {},
     seller: '',
     ratingAndReview: {
