@@ -1,2 +1,2 @@
 ## Description :
-An Admin Panel to manage the products in an Ecommerece Website.
+An Admin Dashboard to manage products in an Ecommerce Website.
