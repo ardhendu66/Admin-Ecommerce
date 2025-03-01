@@ -48,7 +48,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 return res.status(403).json({message: "Product creation failed"});
             }
 
-            return res.status(400).json({message: "Product not found"});
+            const uploadedData = await Upload.create({
+                name,
+                brand: [{
+                    name: brand,
+                    images: [image],
+                    adminId
+                }],
+            });
+            
+            return res.status(201).json({
+                message: "Upload category created successfully",
+                uploadedData
+            });
         }
         catch(err: any) {
             return res.status(500).json({message: err.message})

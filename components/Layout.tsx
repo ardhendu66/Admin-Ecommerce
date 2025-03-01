@@ -1,14 +1,10 @@
 import { ReactNode, useEffect, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/router";
-import Link from "next/link";
-import { GiHamburgerMenu } from "react-icons/gi";
-import { RxCross1 } from "react-icons/rx";
-import { RiAdminFill } from "react-icons/ri";
 import Sidebar from "./Sidebar";
 
 interface ReactNodeArray extends Array<ReactNode> { }
-type ChildProps = {
+interface ChildProps {
   children: ReactNode | ReactNodeArray | boolean | null | undefined;
 };
 
@@ -37,38 +33,10 @@ export default function Layout({ children }: ChildProps) {
     if (session.user.emailVerified) {
       if (session.user.verifiedAsAdmin) {
         return (
-          <div className="bg-bgGray flex min-h-screen max-md:flex-col">
+          <div className="flex h-screen max-md:flex-col bg-bgGray">
             <Sidebar showSideBar={showSideBar} />
             <div
-              className={`${!showSideBar && "bg-white w-full"
-                } bg-bgGray text-black fixed cursor-pointer rounded-full`}
-              onClick={() => setShowSideBar(!showSideBar)}
-            >
-              {showSideBar ? (
-                <div className="border-gray-400 border-[1.4px] p-1 mt-2 ml-1 bg-white rounded">
-                  <RxCross1 className="w-8 h-8 rounded-full bg-transparent text-gray-500" />
-                </div>
-              ) : (
-                <div className="flex w-full bg-bgGray pb-1">
-                  <div className="border-gray-400 border-[1.4px] px-1 py-0 mt-2 ml-1 bg-white rounded">
-                    <GiHamburgerMenu className="w-10 h-10 text-gray-500" />
-                  </div>
-                  <div className="w-full flex justify-center">
-                    <Link
-                      href={"/dashboard"}
-                      className="flex gap-1 text-sky-700 font-medium"
-                    >
-                      <RiAdminFill className="w-10 h-10 text-sky-700" />
-                      <span className="text-3xl font-semibold mt-1 underline">
-                        AdminDashboard
-                      </span>
-                    </Link>
-                  </div>
-                </div>
-              )}
-            </div>
-            <div
-              className={`${!showSideBar && "rounded-lg pt-20 ml-2"} text-black bg-white flex-grow my-2 mr-2 rounded-lg p-4`}
+              className={`sticky ${!showSideBar && "rounded-lg pt-5 ml-2"} text-black bg-white flex-grow my-2 mr-2 rounded-lg p-4 overflow-y-scroll hide-scrollbar`}
             >
               {children}
             </div>
@@ -85,7 +53,7 @@ export default function Layout({ children }: ChildProps) {
           <div className="flex items-center justify-center bg-bgGray w-screen min-h-screen">
             <div className="flex flex-col justify-between bg-sky-400 md:w-[60%] max-md:w-full h-60 p-6 rounded-sm shadow-2xl">
               <div className="bg-gray-200 flex flex-col items-center text-blue-900 text-lg font-semibold py-3 px-5 rounded-md">
-                <div className="">
+                <div>
                   You should be an Admin to access this protected page. Click{" "}
                   <b>Be an Admin</b> button for sending request to the website
                   owner to be verified as an Admin within <b>20 seconds</b>.
@@ -109,7 +77,7 @@ export default function Layout({ children }: ChildProps) {
           <div className="flex flex-col justify-between bg-sky-600 lg:w-[40%] md:w-[60%] max-md:w-full h-60 p-6 rounded-sm shadow-2xl">
             <div className="bg-gray-200 flex flex-col items-center text-blue-900 text-lg font-semibold py-3 px-5 rounded-md">
               <div className="">
-                Check your email. Do verify your account first. Now do logout.
+                Check your email. First verify your account. Now do logout.
               </div>
             </div>
             <div className="flex justify-center">

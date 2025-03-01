@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import { ConnectionWithMongoose } from "@/lib/mongoose";
 import UserModel from "@/lib/Admin";
 import { sendEmail } from "@/utils/mailer";
@@ -94,7 +94,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             })
         }
         catch(err: any) {
-            return res.status(200).json({errorMessage: err.message})
+            return res.status(500).json({errorMessage: err.message})
         }
     }
 }

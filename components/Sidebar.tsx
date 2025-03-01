@@ -1,9 +1,8 @@
-import { Dispatch, SetStateAction } from "react"
+import { useState, useEffect } from "react";
 import Link from "next/link"
 import { useRouter } from "next/router"
 import { signOut } from "next-auth/react"
 import { withSwal } from "react-sweetalert2"
-import { RiAdminFill } from "react-icons/ri"
 import { AiFillHome } from "react-icons/ai"
 import { FaCartArrowDown } from "react-icons/fa"
 import { BiSolidCategory } from "react-icons/bi"
@@ -11,20 +10,29 @@ import { IoClipboard } from "react-icons/io5"
 import { IoSettings } from "react-icons/io5"
 import { ImUpload2 } from "react-icons/im"
 import { IoLogOut } from "react-icons/io5"
-import { toast } from "react-toastify"
+import { GiHamburgerMenu } from "react-icons/gi";
+import { RxCross1 } from "react-icons/rx";
+import { RiAdminFill } from "react-icons/ri";
+import { toast } from "react-toastify";
 
-interface Props {
-    showSideBar: boolean,
-    swal: any
-}
-
-function SidebarComponent({showSideBar, swal}: Props) {
-    const inactiveLink = 'flex gap-1 pl-6 py-2 pr-2 -ml-4'
+const SidebarComponent = ({swal}: any) => {
+    const [showSideBar, setShowSideBar] = useState(false);
+    const inactiveLink = 'flex gap-1 pl-8 py-2 pr-2 -ml-4'
     const activeLink = `${inactiveLink} bg-sky-600 text-gray-100`
     const inActiveIcon = 'w-6 h-6 mb-1 mr-1'
     const activeIcon = `${inActiveIcon} text-white`
     const router = useRouter()
     const { pathname } = router
+
+    useEffect(() => {
+        setShowSideBar(
+          window.localStorage.getItem("openSideBar") === "1" ? true : false
+        );
+    }, []);
+    
+    useEffect(() => {
+        window.localStorage.setItem("openSideBar", showSideBar ? "1" : "0");
+    }, [showSideBar]);
 
     const confirmLogoutAction = () => {
         swal.fire({
@@ -43,9 +51,6 @@ function SidebarComponent({showSideBar, swal}: Props) {
                     toast.success("Logged-out successfully", { position: "top-center" })
                 })
             }
-            else {
-                swal.fire(`Seems like you avoid to Log-out 🙂`, '', 'info');
-            }
         })
         .catch((err: any) => {
             swal.fire(err.message, '', 'error')
@@ -54,18 +59,39 @@ function SidebarComponent({showSideBar, swal}: Props) {
 
     return (
         <aside 
-            className={`${!showSideBar && "hidden"} top-0 text-black pl-4 py-4 w-full h-full static md:w-auto md:h-auto transition-all`}
+            className={`sticky top-0 text-black pl-4 py-4 w-full h-full md:w-auto md:h-auto transition-all ${!showSideBar && "max-md:h-[88px]"}`}
         >
-            <Link href={'/dashboard'} className="flex mb-6 ml-8 gap-1 mr-10 text-sky-700">
-                <RiAdminFill className="w-6 h-6 text-sky-700"/>
-                AdminDashboard
-            </Link>
-            <nav className="flex flex-col gap-2 text-gray-500">
+            <div
+                className={`${!showSideBar && "bg-white w-full"} bg-bgGray text-black cursor-pointer rounded-full`}
+                onClick={() => setShowSideBar(!showSideBar)}
+            >
+                {
+                    showSideBar ? (
+                        <div className="flex items-center justify-center w-10 h-10 border-gray-400 border-[1.4px] p-1 bg-white rounded">
+                            <RxCross1 
+                                className="w-8 h-8 rounded-full bg-transparent text-gray-500" 
+                            />
+                        </div>
+                    ) 
+                    : (
+                        <div className="flex w-full bg-bgGray pb-1 flex-col">
+                            <div className="border-gray-400 border-[1.4px] px-1 mt-2 ml-1 bg-white rounded w-12 h-12 flex items-center justify-center">
+                                <GiHamburgerMenu className="w-10 h-10 text-gray-500" />
+                            </div>
+                        </div>
+                    )
+                }
+            </div>
+            <nav className={`flex flex-col text-gray-500 text-xl ${!showSideBar && "hidden"} -mr-2 font-semibold gap-y-2`}>
+                <Link href={'/dashboard'} className="flex -mt-8 mb-6 ml-12 gap-1 mr-2 text-sky-700">
+                    <RiAdminFill className="w-6 h-6 text-sky-700"/>
+                    EcomstoreAdmin
+                </Link>
                 <Link href={'/dashboard'} 
                     className={pathname === '/dashboard' ? activeLink : inactiveLink}
                 >
-                    <AiFillHome className={
-                        pathname === '/dashboard' ? activeIcon : inActiveIcon} 
+                    <AiFillHome 
+                        className={pathname === '/dashboard' ? activeIcon : inActiveIcon} 
                     /> 
                     Dashboard
                 </Link>
@@ -112,8 +138,6 @@ function SidebarComponent({showSideBar, swal}: Props) {
     );
 }
 
-const Sidebar = withSwal(({showSideBar, swal}: Props, ref: any) => (
-    <SidebarComponent swal={swal} showSideBar={showSideBar} />
-))
+const Sidebar = withSwal(({swal}: any, ref: any) => <SidebarComponent swal={swal} />);
 
 export default Sidebar;
