@@ -28,8 +28,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     return res.status(200).json({ message: "Brand already exist" });
                 }
 
-/**
-
               const updatedProduct = await Upload.findOneAndUpdate({name}, {
                     $push: {
                         brand: {
@@ -48,8 +46,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 }
 
                 return res.status(403).json({message: "Product creation failed"});
-
-**/
 
             }
 
