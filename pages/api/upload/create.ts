@@ -48,9 +48,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 }
 
                 return res.status(403).json({message: "Product creation failed"});
-            }
 
 **/
+
+            }
 
 
             const uploadedData = await Upload.create({
