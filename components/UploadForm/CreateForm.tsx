@@ -54,7 +54,7 @@ export default function CreateForm({
         })
             .then(resp => {
                 // console.log(resp.data);
-                axios.post('/api/upload/create', {
+                axios.post('/api/upload/create-category', {
                     name, brand: brandName, image: resp.data.url, 
                     adminId: session?.user._id
                 })
