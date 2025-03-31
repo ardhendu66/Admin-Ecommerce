@@ -48,17 +48,17 @@ export default function CreateForm({
             headers: { "Content-Type": "multipart/form-data" },
         })
             .then(resp => {
-                return axios.post("/api/upload/create-category", {
-                    name, brand: brandName, image: resp.data.url, adminId: session.user._id
-                });
-            })
-            .then(res => {
-                if (res.status === 201 || res.status === 200) {
-                    hotToast.success("Image uploaded successfully");
-                    router.reload();
-                } else {
-                    hotToast.success(res.data.message);
-                }
+                axios.post(
+                    `/api/upload/create-category?name=${name as string}&brand=${brandName as string}&image=${resp.data.url}&adminId=${session?.user._id as string}`
+                )
+                    .then(res => {
+                        if (res.status === 201 || res.status === 200) {
+                            hotToast.success("Image uploaded successfully");
+                            router.reload();
+                        } else {
+                            hotToast.success(res.data.message);
+                        }
+                    })
             })
             .catch((err: AxiosError) => {
                 hotToast.error("Brand not created");
