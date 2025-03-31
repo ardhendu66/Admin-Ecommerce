@@ -10,14 +10,37 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (req.method === "POST") {
 
         try {
-            const { name, brand, adminId } = req.query;         
+            const { name, brand, image, adminId } = req.query; 
+            
+            const existingBrand = await Upload.findOne({ name: name as string });
+
+            if(existingBrand) {
+                const updatedProduct = await Upload.findOneAndUpdate({name}, {
+                    $push: {
+                        brand: {
+                            name: brand as string,
+                            images: [image as string],
+                            adminId: adminId as string,
+                        }
+                    }
+                })
+
+                if(updatedProduct) {
+                    return res.status(201).json({
+                        message: "Image uploaded successfully",
+                        updatedProduct
+                    });
+                }
+
+                return res.status(403).json({message: "Product creation failed"});
+            }
 
             const uploadedData = await Upload.create({
-                name,
+                name: name as string,
                 brand: [{
-                    name: brand,
-                    images: [defaultImage],
-                    adminId
+                    name: brand as string,
+                    images: [image as string || defaultImage],
+                    adminId: adminId as string,
                 }],
             });
 
@@ -36,36 +59,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     return res.status(405).json({ message: "Method not allowed" });
 }
-
-
-// async function manageIndexes(res: NextApiResponse) {
-//     try {
-//         // List current indexes
-//         const indexes = await Upload.collection.listIndexes().toArray();
-//         console.log("Current Indexes:", indexes);
-
-//         const indexName = "brand.brandName_1";
-//         const indexExists = indexes.some(index => index.name === indexName);
-
-//         // Check if the index exists and drop it
-//         let data;
-//         if (indexExists) {
-//             data = await Upload.collection.dropIndex(indexName);
-//             console.log(`Dropped index: ${indexName}`);
-//         } else {
-//             console.log(`Index ${indexName} does not exist.`);
-//         }
-
-//         // Create a new partial index
-//         const data1 = await Upload.collection.createIndex(
-//             { "brand.brandName": 1 },
-//             { unique: true, partialFilterExpression: { "brand.brandName": { $type: "string" } } }
-//         );
-//         console.log("Created new partial index for brand.brandName");
-
-//         return res.status(200).json({ data, data1 })
-//     }
-//     catch(err) {
-//         console.error(err);        
-//     }
-// }

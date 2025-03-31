@@ -1,10 +1,10 @@
+import { SetStateAction } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import axios, { AxiosError } from "axios";
 import Image from "next/image";
 import { ClipLoader, ClockLoader } from "react-spinners";
-import { toast } from "react-toastify";
-import { SetStateAction } from "react";
+import hotToast from "react-hot-toast";
 
 interface Props {
     name: string,
@@ -54,23 +54,20 @@ export default function CreateForm({
         })
             .then(resp => {
                 // console.log(resp.data);
-                axios.post('/api/upload/create', {
-                    name, brand: brandName, image: resp.data.url, 
-                    adminId: session?.user._id
-                })
+                axios.post(
+                    `/api/upload/create-category?name=${name}&brand=${brandName}&image=${resp.data.url}&adminId=${session?.user._id}`
+                )
                     .then(res => {
                         if(res.status === 201 || res.status === 200) {
-                            toast.success(
-                                "Image uploaded successfully", { position: "top-center" }
-                            );
-                            router.push(`/upload/allcategories?item=${name}`);
+                            hotToast.success("Image uploaded successfully");
+                            router.reload();
                         }
                         else {
-                            toast.info(res.data.message, { position: "top-center" });
+                            hotToast.success(res.data.message);
                         }
                     })
                     .catch((err: AxiosError) => {
-                        toast.error("Brand not created", { position: "top-center" });
+                        hotToast.error("Brand not created");
                         console.error({
                             response: err.response, message: err.message
                         });
@@ -80,9 +77,7 @@ export default function CreateForm({
                 console.error({
                     response: err.response, message: err.message
                 });        
-                toast.error(
-                    err.response?.data as string, { position: "top-center" }
-                );            
+                hotToast.error(err.response?.data as string);            
             })
             .finally(() => setIsUploading(false));            
     }

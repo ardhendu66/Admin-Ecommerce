@@ -24,7 +24,7 @@ export default function cloudUpload(file: formidable.File[]) {
                     console.error("Cloudinary upload error:", err);
                     reject(new Error("Cloudinary upload failed"));
                 } else {
-                    console.log("Cloudinary upload result:", result);
+                    console.log("uploaded to Cloudinary successfully");
                     resolve(result);
                 }
             }
